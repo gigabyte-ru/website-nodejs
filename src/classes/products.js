@@ -29,16 +29,16 @@ export class Products extends Updated {
         productDb['category_id']
       );
 
-      const category = this.data[categoryAlias];
+      const productsCategory = this.data[categoryAlias];
 
-      if (!category) {
+      if (!productsCategory) {
         continue;
       }
 
       const product = { ...productDb };
 
       product['images'] = await this.getProductImages(productDb['id'], db);
-      category.set(product['original_alias'], product);
+      productsCategory.set(product['original_alias'], product);
     }
 
     // Close connection
@@ -50,11 +50,13 @@ export class Products extends Updated {
   async getDataFromDb(db = null) {
     const currentDb = db ?? (await DB().connect(this.dbName));
     const data = await currentDb.query(
-      'SELECT * FROM `categories` WHERE `original_id` > 0'
+      'SELECT * FROM `products` WHERE `original_alias` IS NOT NULL'
     );
     if (!db) {
       await currentDb.disconnect();
     }
+
+    console.log('Products: ', data.length);
 
     return data;
   }

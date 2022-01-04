@@ -32,6 +32,8 @@ export class Categories extends Updated {
     );
     await db.disconnect();
 
+    console.log('Categories: ', data.length);
+
     return data;
   }
 }

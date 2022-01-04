@@ -27,6 +27,8 @@ export class Langs extends Updated {
     const data = await db.query('SELECT * FROM `langs`');
     await db.disconnect();
 
+    console.log('Langs: ', data.length);
+
     return data;
   }
 }

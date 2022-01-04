@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { opendir, readFile, realpath } from 'fs/promises';
 
 import { GlobalVariables } from './classes/globalVariables.js';
+import { processRoute } from "./utils/processRoute.js";
 
 dotenv.config();
 const HTTP_PORT = process.env.SERVER_HTTP_PORT;
@@ -13,10 +14,8 @@ const HTTP_PORT = process.env.SERVER_HTTP_PORT;
 // Need to run `node --expose-gc ./server.js`
 const globalVariables = await new GlobalVariables().init();
 
-console.log(globalVariables);
-
 http.createServer(async (req, res) => {
-  console.log(req);
+  processRoute(req, res, globalVariables);
 }).listen(HTTP_PORT, () => {
   console.log(`HTTP-server running at http://localhost:${HTTP_PORT}/`);
 }).on('error', err => {

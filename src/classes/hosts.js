@@ -29,6 +29,8 @@ export class Hosts extends Updated {
     const data = await db.query('SELECT * FROM `domains`');
     await db.disconnect();
 
+    console.log('Hosts: ', data.length);
+
     return data;
   }
 }

@@ -50,6 +50,8 @@ export class Translations extends Updated {
     const data = await db.query('SELECT * FROM `articles`');
     await db.disconnect();
 
+    console.log('Translations: ', data.length);
+
     return data;
   }
 }
