@@ -4,6 +4,10 @@ import { DB } from '../utils/db.js';
 export class Hosts extends Updated {
   data = new Map();
 
+  getHostByName (hostname) {
+    return this.data.get(hostname);
+  }
+
   async fill() {
     this.data = new Map();
 
