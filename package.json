@@ -6,7 +6,12 @@
   "type": "module",
   "lib": "es2021",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:check":"node src/console/checkGigabyteRU.js",
+    "start": "node src/server.js",
+    "pm2:start": "pm2 start npm -- run start",
+    "pm2:delete": "pm2 delete npm -- run start",
+    "cluster": "pm2 -i 4 start npm -- run start"
   },
   "author": "Yury Nesterenko",
   "license": "ISC",
@@ -14,6 +19,7 @@
     "axios": "^0.24.0",
     "dotenv": "^10.0.0",
     "mysql2": "^2.3.3",
+    "pm2": "^5.1.2",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

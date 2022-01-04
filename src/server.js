@@ -2,7 +2,6 @@
 
 import http from 'http';
 import dotenv from 'dotenv';
-import { memoryUsage } from 'process';
 import { opendir, readFile, realpath } from 'fs/promises';
 
 import { GlobalVariables } from './classes/globalVariables.js';
@@ -16,10 +15,16 @@ const globalVariables = await new GlobalVariables().init();
 
 console.log(globalVariables);
 
-if (global.gc) {
-  global.gc();
-}
-console.log(memoryUsage());
+http.createServer(async (req, res) => {
+  console.log(req);
+}).listen(HTTP_PORT, () => {
+  console.log(`HTTP-server running at http://localhost:${HTTP_PORT}/`);
+}).on('error', err => {
+  if (err.code === 'EACCES') {
+    console.log(`No access to port: ${HTTP_PORT}`);
+  }
+});
+
 
 /*
 const handlers = {
