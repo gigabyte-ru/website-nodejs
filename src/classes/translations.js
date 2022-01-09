@@ -11,6 +11,10 @@ export class Translations extends Updated {
     this.langs = langs;
   }
 
+  get(alias) {
+    return this.data[alias];
+  }
+
   async fill() {
     this.data = {};
 
@@ -21,7 +25,7 @@ export class Translations extends Updated {
     }
 
     for (const article of articles) {
-      const langAlias = this.langs.getAliasFromId(article['lang_id']);
+      const langAlias = this.langs.get(article['lang_id'])?.alias;
       const dataMap = this.data[langAlias];
 
       if (!dataMap) {

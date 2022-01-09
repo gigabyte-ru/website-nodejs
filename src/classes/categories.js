@@ -5,6 +5,10 @@ import { Category } from './category.js';
 export class Categories extends Updated {
   data = new Map();
 
+  get(categoryId) {
+    return this.data.get(categoryId);
+  }
+
   getOriginalAliasFromId(categoryId) {
     return this.data.get(categoryId)?.originalAlias;
   }

@@ -1,10 +1,11 @@
 import { Updated } from './updated.js';
 import { DB } from '../utils/db.js';
+import { Host } from './host.js';
 
 export class Hosts extends Updated {
   data = new Map();
 
-  getHostByName (hostname) {
+  getHostByName(hostname) {
     return this.data.get(hostname);
   }
 
@@ -14,15 +15,7 @@ export class Hosts extends Updated {
     const domainsDb = await this.getDataFromDb();
 
     for (const domain of domainsDb) {
-      const host = {
-        firstLangId: domain['lang_id'],
-        secondLangId: domain['vicarial_lang_id'],
-        defaultLangId: domain['default_lang_id'],
-        name: domain['name'],
-        countryId: domain['country_id'],
-      };
-
-      this.data.set(domain['name'], host);
+      this.data.set(domain['name'], new Host(domain));
     }
 
     return this;

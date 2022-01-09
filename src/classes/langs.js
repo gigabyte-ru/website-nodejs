@@ -5,8 +5,8 @@ import { Lang } from './lang.js';
 export class Langs extends Updated {
   data = new Map();
 
-  getAliasFromId(langId) {
-    return this.data.get(langId)?.alias;
+  get(langId) {
+    return this.data.get(langId);
   }
 
   async fill() {
@@ -14,10 +14,9 @@ export class Langs extends Updated {
 
     const langs = await this.getDataFromDb();
 
-    this.data = langs.reduce(
-      (map, lang) => map.set(lang.id, new Lang(lang)),
-      new Map()
-    );
+    for (const lang of langs) {
+      this.data.set(lang.id, new Lang(lang));
+    }
 
     return this;
   }

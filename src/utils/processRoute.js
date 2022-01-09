@@ -1,14 +1,32 @@
-export const processRoute = (req, res, globalVariables) => {
-  // console.log(req.url, req.headers);
-  const host = globalVariables.hosts.getHostByName(req.headers.host);
+import { CurrentSession } from '../classes/currentSession.js';
+import { urlHandler } from './urlHandler.js';
 
-  if (!host) {
+/**
+ * Check access for host and run handler for URL
+ * @param req
+ * @param res
+ * @param globalVariables
+ */
+export const processRoute = (req, res, globalVariables) => {
+  console.log(req.headers.host);
+  // const host = globalVariables.hosts.getHostByName(req.headers.host);
+  //
+  // if (!host) {
+  //   res.statusCode = 404;
+  //   res.end("Can't find hostname");
+  //   return;
+  // }
+
+  const currentSession = {};
+  // const currentSession = new CurrentSession(globalVariables, host);
+
+  const result = urlHandler(req.url, currentSession);
+
+  if (!result) {
     res.statusCode = 404;
-    res.end('Can\'t find hostname');
-    return;
+    res.end("Can't find page");
   }
 
-  console.log(host);
   res.statusCode = 200;
-  res.end('OK');
-}
+  res.end(result);
+};
