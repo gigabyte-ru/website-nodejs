@@ -3,27 +3,28 @@ import { DB } from '../utils/db.js';
 import { Category } from './category.js';
 
 export class Categories extends Updated {
-  data = new Map();
+  data = new Set();
 
-  get(categoryId) {
-    return this.data.get(categoryId);
-  }
+  get(categoryIdOrAlias) {
+    for (const category of this.data.values()) {
+      if (
+        category.id === categoryIdOrAlias ||
+        category.alias === categoryIdOrAlias
+      ) {
+        return category;
+      }
+    }
 
-  getOriginalAliasFromId(categoryId) {
-    return this.data.get(categoryId)?.originalAlias;
-  }
-
-  getAliasFromId(categoryId) {
-    return this.data.get(categoryId)?.alias;
+    return null;
   }
 
   async fill() {
-    this.data = new Map();
+    this.data = new Set();
 
     const categories = await this.getDataFromDb();
 
     for (const category of categories) {
-      this.data.set(category.id, new Category(category));
+      this.data.add(new Category(category));
     }
 
     return this;

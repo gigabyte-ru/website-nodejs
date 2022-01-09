@@ -1,5 +1,5 @@
-import { productPage } from '../handlers/productPage.js';
-import { productCategory } from '../handlers/productCategory.js';
+import { productPage } from '../handlers/products/productPage.js';
+import { productCategory } from '../handlers/products/productCategory.js';
 
 /**
  * Handlers for paths

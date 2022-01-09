@@ -1,6 +1,6 @@
 export class Category {
   constructor(category) {
-    this.categoryId = category['id'];
+    this.id = category['id'];
     this.approved = category['approved_key'];
     this.parentId = category['parent_id'];
     this.name = category['name'];

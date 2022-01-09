@@ -6,7 +6,7 @@ import { router } from '../router/router.js';
  * @param currentSession
  * @returns {null|string}
  */
-export const urlHandler = (url, currentSession) => {
+export const runRouteHandlerFromUrl = async (url, currentSession) => {
   const [path, query] = url.split('?');
   console.log(path);
 
@@ -29,8 +29,14 @@ export const urlHandler = (url, currentSession) => {
     })
     .filter((r) => r);
 
+  console.log({ findRoute });
+
   if (findRoute.length) {
-    return findRoute[0].handler(currentSession, findRoute[0].params, query);
+    return await findRoute[0].handler({
+      currentSession,
+      params: findRoute[0].params,
+      searchParams: new URLSearchParams(query),
+    });
   }
 
   return null;
@@ -41,13 +47,13 @@ export const urlHandler = (url, currentSession) => {
  * @param path
  * @returns {RegExp}
  */
-export const routerPathToRegexp = (path) => {
+const routerPathToRegexp = (path) => {
   const pathSplit = path?.split('/');
 
   const prepareString = pathSplit
     .map((p) => {
       if (p[0] === ':') {
-        return '(\\w+)?';
+        return '([a-zA-Z_0-9-]+)?';
       }
       return p;
     })
@@ -62,7 +68,7 @@ export const routerPathToRegexp = (path) => {
  * @param matches
  * @returns {{}}
  */
-export const getParamsFromMatchResult = (routerPath, matches) => {
+const getParamsFromMatchResult = (routerPath, matches) => {
   const params = {};
 
   const pathSplit = routerPath?.split('/');

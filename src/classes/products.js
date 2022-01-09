@@ -1,9 +1,10 @@
 import { Updated } from './updated.js';
-import { DB } from '../utils/db.js';
+import { DB } from '../utils/index.js';
 import { Categories } from './categories.js';
+import { Product } from './product.js';
 
 export class Products extends Updated {
-  data = {};
+  data = new Map();
 
   dbName = 'u15821_products';
 
@@ -13,11 +14,15 @@ export class Products extends Updated {
     this.categories = categories;
   }
 
+  get(category, productAlias) {
+    return this.data.get(category)?.get(productAlias) ?? null;
+  }
+
   async fill() {
-    this.data = {};
+    this.data = new Map();
 
     for (const category of this.categories.data.values()) {
-      this.data[category.originalAlias] = new Map();
+      this.data.set(category, new Map());
     }
 
     // Open connection
@@ -25,20 +30,21 @@ export class Products extends Updated {
     const products = await this.getDataFromDb(db);
 
     for (const productDb of products) {
-      const categoryAlias = this.categories.getOriginalAliasFromId(
-        productDb['category_id']
-      );
-
-      const productsCategory = this.data[categoryAlias];
-
-      if (!productsCategory) {
+      const category = this.categories.get(productDb['category_id']);
+      if (!category) {
         continue;
       }
 
-      const product = { ...productDb };
+      const productCategory = this.data.get(category);
+      if (!productCategory) {
+        continue;
+      }
 
-      product['images'] = await this.getProductImages(productDb['id'], db);
-      productsCategory.set(product['original_alias'], product);
+      const product = new Product(productDb);
+
+      // product['images'] = await this.getProductImages(productDb['id'], db);
+      productCategory.set(product.alias, product);
+      productCategory.set(product.originalAlias, product);
     }
 
     // Close connection

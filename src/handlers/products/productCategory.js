@@ -5,7 +5,7 @@
  * @param query
  * @returns {string}
  */
-export const productCategory = (currentSession, params, query) => {
-  console.log({ currentSession, params, query });
+export const productCategory = async (currentSession, params, query) => {
+  console.log({ params });
   return '';
 };

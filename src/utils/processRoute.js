@@ -1,5 +1,5 @@
 import { CurrentSession } from '../classes/currentSession.js';
-import { urlHandler } from './urlHandler.js';
+import { runRouteHandlerFromUrl } from './runRouteHandlerFromUrl.js';
 
 /**
  * Check access for host and run handler for URL
@@ -7,20 +7,19 @@ import { urlHandler } from './urlHandler.js';
  * @param res
  * @param globalVariables
  */
-export const processRoute = (req, res, globalVariables) => {
+export const processRoute = async (req, res, globalVariables) => {
   console.log(req.headers.host);
-  // const host = globalVariables.hosts.getHostByName(req.headers.host);
-  //
-  // if (!host) {
-  //   res.statusCode = 404;
-  //   res.end("Can't find hostname");
-  //   return;
-  // }
+  const host = globalVariables.hosts.getHostByName(req.headers.host);
 
-  const currentSession = {};
-  // const currentSession = new CurrentSession(globalVariables, host);
+  if (!host) {
+    res.statusCode = 404;
+    res.end("Can't find hostname");
+    return;
+  }
 
-  const result = urlHandler(req.url, currentSession);
+  const currentSession = new CurrentSession(globalVariables, host);
+
+  const result = await runRouteHandlerFromUrl(req.url, currentSession);
 
   if (!result) {
     res.statusCode = 404;
