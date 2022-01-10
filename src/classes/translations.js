@@ -1,9 +1,10 @@
 import { Updated } from './updated.js';
 import { DB } from '../utils/db.js';
 import { Langs } from './langs.js';
+import { Translation } from './translation.js';
 
 export class Translations extends Updated {
-  data = {};
+  data = new Map();
 
   constructor(langs = new Langs()) {
     super();
@@ -11,39 +12,33 @@ export class Translations extends Updated {
     this.langs = langs;
   }
 
-  get(alias) {
-    return this.data[alias];
+  get(langId) {
+    return this.data.get(langId);
   }
 
   async fill() {
-    this.data = {};
+    this.data = new Map();
 
     const articles = await this.getDataFromDb();
 
-    for (const lang of this.langs.data.values()) {
-      this.data[lang.alias] = new Map();
+    for (const langId of this.langs.data.keys()) {
+      this.data.set(langId, new Map());
     }
 
-    for (const article of articles) {
-      const langAlias = this.langs.get(article['lang_id'])?.alias;
-      const dataMap = this.data[langAlias];
+    for (const articleDb of articles) {
+      const dataMap = this.data.get(articleDb['lang_id']);
 
       if (!dataMap) {
         continue;
       }
 
-      const alias = {
-        name: article.name,
-        abstract: article.abstract,
-        description: article.description,
-        code: article.code,
-        link: article.link,
-      };
-      if (article['alias']) {
-        dataMap.set(article['alias'], alias);
+      const translation = new Translation(articleDb);
+
+      if (translation.alias) {
+        dataMap.set(translation.alias, translation);
       }
 
-      dataMap.set(article['article_id'], alias);
+      dataMap.set(translation.id, translation);
     }
 
     return this;

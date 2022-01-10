@@ -1,29 +1,24 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import { globalVariables } from './globalVariables.js';
 
-export class CurrentSession {
-  SRC_PATH = `${process.env.INSTALLED_PATH}src`;
-
-  constructor(globalVariables, host) {
-    this.globalVariables = globalVariables;
-    // const defaultLangAlias = 'en';
+class CurrentSession {
+  init(host, connectionType) {
+    const defaultLangId = 1;
+    this.connectionType = connectionType;
     this.host = host;
-    //
-    // this.firstLangAlias = host.firstLangId
-    //   ? globalVariables.langs.get(host.firstLangId)?.alias
-    //   : defaultLangAlias;
-    // this.secondLangAlias = host.secondLangId
-    //   ? globalVariables.langs.get(host.secondLangId)?.alias
-    //   : defaultLangAlias;
-    // this.thirdLangAlias = host.defaultLangId
-    //   ? globalVariables.langs.get(host.defaultLangId)?.alias
-    //   : defaultLangAlias;
-    //
-    // this.translations = {
-    //   first: globalVariables.translations.get(this.firstLangAlias),
-    //   second: globalVariables.translations.get(this.secondLangAlias),
-    //   default: globalVariables.translations.get(this.thirdLangAlias),
-    // };
+
+    this.translations = {
+      first: globalVariables.translations.get(
+        host.firstLangId ?? defaultLangId
+      ),
+      second: globalVariables.translations.get(
+        host.secondLangId ?? defaultLangId
+      ),
+      default: globalVariables.translations.get(
+        host.defaultLangId ?? defaultLangId
+      ),
+    };
     this.country = globalVariables.countries.get(this.host.countryId);
   }
 }
+
+export const currentSession = new CurrentSession();

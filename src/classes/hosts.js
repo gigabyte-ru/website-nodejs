@@ -5,7 +5,7 @@ import { Host } from './host.js';
 export class Hosts extends Updated {
   data = new Map();
 
-  getHostByName(hostname) {
+  get(hostname) {
     return this.data.get(hostname);
   }
 

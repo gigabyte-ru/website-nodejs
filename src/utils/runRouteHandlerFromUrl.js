@@ -3,10 +3,9 @@ import { router } from '../router/router.js';
 /**
  * Find handler for URL and run it
  * @param url
- * @param currentSession
  * @returns {null|string}
  */
-export const runRouteHandlerFromUrl = async (url, currentSession) => {
+export const runRouteHandlerFromUrl = async (url) => {
   const [path, query] = url.split('?');
   console.log(path);
 
@@ -33,7 +32,6 @@ export const runRouteHandlerFromUrl = async (url, currentSession) => {
 
   if (findRoute.length) {
     return await findRoute[0].handler({
-      currentSession,
       params: findRoute[0].params,
       searchParams: new URLSearchParams(query),
     });

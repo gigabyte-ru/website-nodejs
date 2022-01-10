@@ -1,16 +1,11 @@
 /**
  * Handler for page /products/page/:categoryId/:productId/:tab
- * @param currentSession
- * @param params
- * @param query
  * @returns {string}
  */
-export const productPage = async (options) => {
-  const { currentSession, params } = options;
+import { globalVariables } from '../../classes/globalVariables.js';
 
-  const category = currentSession.globalVariables.categories.get(
-    params['categoryAlias']
-  );
+export const productPage = async ({ params, searchParams }) => {
+  const category = globalVariables.categories.get(params['categoryAlias']);
 
   if (!category) {
     return '';
@@ -20,10 +15,10 @@ export const productPage = async (options) => {
 
   try {
     const { ProductPageHandler } = await import(
-      `${currentSession.SRC_PATH}/handlers/products/${category.originalAlias}/productPageHandler.js`
+      `${globalVariables.SRC_PATH}/handlers/products/${category.originalAlias}/productPageHandler.js`
     );
 
-    product = new ProductPageHandler(options, category);
+    product = new ProductPageHandler({ params, searchParams, category });
   } catch (e) {
     console.log(e);
   }

@@ -3,7 +3,6 @@ import { productCategory } from '../handlers/products/productCategory.js';
 
 /**
  * Handlers for paths
- * @type {[{path: string, handler: ((function({currentSession: *, query: *}): string)|*)},{path: string, handler: ((function({currentSession: *, query: *}): string)|*)},{path: string, handler: ((function({currentSession: *, query: *}): string)|*)}]}
  */
 export const router = [
   {

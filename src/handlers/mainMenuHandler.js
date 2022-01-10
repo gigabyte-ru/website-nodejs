@@ -1,12 +1,9 @@
 import { readTemplateFile } from '../utils/index.js';
+import { globalVariables } from '../classes/globalVariables.js';
 
 export class MainMenuHandler {
-  constructor(currentSession) {
-    this.currentSession = currentSession;
-  }
-
   async parse() {
-    const templatePath = `${this.currentSession.SRC_PATH}/templates/menu/main.html`;
+    const templatePath = `${globalVariables.SRC_PATH}/templates/menu/main.html`;
     return await readTemplateFile(templatePath);
   }
 }
