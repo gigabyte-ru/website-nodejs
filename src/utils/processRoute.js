@@ -1,4 +1,4 @@
-import { currentSession } from '../classes/currentSession.js';
+import { CurrentSession } from '../classes/currentSession.js';
 import { runRouteHandlerFromUrl } from './runRouteHandlerFromUrl.js';
 import { globalVariables } from '../classes/globalVariables.js';
 import { translateTemplate } from './translateTemplate.js';
@@ -18,9 +18,9 @@ export const processRoute = async (req, res, type = 'http') => {
   }
 
   console.log(host.name);
-  currentSession.init(host, type);
+  const currentSession = new CurrentSession(req, host, type);
 
-  const template = await runRouteHandlerFromUrl(req.url);
+  const template = await runRouteHandlerFromUrl(currentSession);
 
   if (!template) {
     res.statusCode = 404;
@@ -28,5 +28,18 @@ export const processRoute = async (req, res, type = 'http') => {
   }
 
   res.statusCode = 200;
-  res.end(translateTemplate(template));
+  res.end(translateTemplate(template, currentSession));
 };
+
+// const receiveArgs = async (req) =>
+//   new Promise((resolve) => {
+//     const body = [];
+//     req
+//       .on('data', (chunk) => {
+//         body.push(chunk);
+//       })
+//       .on('end', async () => {
+//         const data = body.join('');
+//         resolve(data);
+//       });
+//   });

@@ -1,8 +1,17 @@
 import { globalVariables } from './globalVariables.js';
 
-class CurrentSession {
-  init(host, connectionType) {
+export class CurrentSession {
+  constructor(req, host, connectionType) {
+    const [path, query] = req.url.split('?');
     const defaultLangId = 1;
+
+    this.url = {
+      path,
+      query: new URLSearchParams(query),
+    };
+
+    console.log(this.url);
+
     this.connectionType = connectionType;
     this.host = host;
 
@@ -19,6 +28,12 @@ class CurrentSession {
     };
     this.country = globalVariables.countries.get(this.host.countryId);
   }
-}
 
-export const currentSession = new CurrentSession();
+  addRoute(route) {
+    this.route = route;
+  }
+
+  addCategory(category) {
+    this.category = category;
+  }
+}

@@ -5,18 +5,15 @@ import {
 } from '../../../utils/index.js';
 import { MainMenuHandler } from '../../mainMenuHandler.js';
 import { globalVariables } from '../../../classes/globalVariables.js';
-import { currentSession } from '../../../classes/currentSession.js';
 
 export class ProductPageHandler {
-  constructor({ params, searchParams, category }) {
-    this.category = category;
-    this.params = params;
-    this.searchParams = searchParams;
+  constructor(currentSession) {
+    this.currentSession = currentSession;
     this.product = globalVariables.products.get(
-      category,
-      params['productAlias']
+      currentSession.category,
+      currentSession.route.params['productAlias']
     );
-    this.mainTemplatePath = `${globalVariables.SRC_PATH}/templates/products/${category.originalAlias}/index.html`;
+    this.mainTemplatePath = `${globalVariables.SRC_PATH}/templates/products/${currentSession.category.originalAlias}/index.html`;
   }
 
   async parseLocalModules() {
@@ -31,8 +28,8 @@ export class ProductPageHandler {
     const templateAfterParseVariables = await parseTemplateVariables(
       mainTemplate,
       {
-        connectionType: currentSession.connectionType,
-        hostName: currentSession.host.name,
+        connectionType: this.currentSession.connectionType,
+        hostName: this.currentSession.host.name,
         productFullName: this.product.fullName,
         productAlias: this.product.alias,
       }

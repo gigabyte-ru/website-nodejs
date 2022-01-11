@@ -1,6 +1,4 @@
-import { currentSession } from '../classes/currentSession.js';
-
-export const translateTemplate = (templateString) => {
+export const translateTemplate = (templateString, currentSession) => {
   return templateString.replace(/\[#(.+?)#\]/g, (...args) => {
     const { translations } = currentSession;
     const alias = args[1].split('.');

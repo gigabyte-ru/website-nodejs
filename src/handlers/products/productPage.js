@@ -4,24 +4,28 @@
  */
 import { globalVariables } from '../../classes/globalVariables.js';
 
-export const productPage = async ({ params, searchParams }) => {
-  const category = globalVariables.categories.get(params['categoryAlias']);
+export const productPage = async (currentSession) => {
+  const category = globalVariables.categories.get(
+    currentSession.route.params['categoryAlias']
+  );
 
   if (!category) {
     return '';
   }
 
-  let product = null;
+  let page = null;
 
   try {
     const { ProductPageHandler } = await import(
       `${globalVariables.SRC_PATH}/handlers/products/${category.originalAlias}/productPageHandler.js`
     );
 
-    product = new ProductPageHandler({ params, searchParams, category });
+    currentSession.addCategory(category);
+
+    page = new ProductPageHandler(currentSession);
   } catch (e) {
     console.log(e);
   }
 
-  return product ? await product.parse() : '';
+  return page ? await page.parse() : '';
 };

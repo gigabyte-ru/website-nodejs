@@ -5,10 +5,7 @@ import { router } from '../router/router.js';
  * @param url
  * @returns {null|string}
  */
-export const runRouteHandlerFromUrl = async (url) => {
-  const [path, query] = url.split('?');
-  console.log(path);
-
+export const runRouteHandlerFromUrl = async (currentSession) => {
   const routerWithRegexp = router.map((r) => ({
     ...r,
     regexp: routerPathToRegexp(r.path),
@@ -16,7 +13,7 @@ export const runRouteHandlerFromUrl = async (url) => {
 
   const findRoute = routerWithRegexp
     .map((r) => {
-      const result = path.match(r.regexp);
+      const result = currentSession.url.path.match(r.regexp);
       if (result) {
         return {
           ...r,
@@ -28,13 +25,11 @@ export const runRouteHandlerFromUrl = async (url) => {
     })
     .filter((r) => r);
 
-  console.log({ findRoute });
-
   if (findRoute.length) {
-    return await findRoute[0].handler({
-      params: findRoute[0].params,
-      searchParams: new URLSearchParams(query),
-    });
+    const route = findRoute[0];
+    currentSession.addRoute(route);
+
+    return await route.handler(currentSession);
   }
 
   return null;
