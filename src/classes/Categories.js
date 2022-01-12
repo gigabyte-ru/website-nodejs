@@ -1,5 +1,4 @@
 import { Updated } from './Updated.js';
-import { DB } from '../utils/db.js';
 import { Category } from './Category.js';
 
 export class Categories extends Updated {
@@ -20,10 +19,14 @@ export class Categories extends Updated {
     return null;
   }
 
-  async fill() {
+  async fill(db = null) {
     this.data = new Set();
 
-    const categories = await this.getDataFromDb();
+    const categories = await this.getDataFromDb({
+      query: 'SELECT * FROM `categories` WHERE `original_id` > 0',
+      dbName: Categories.dbName,
+      db,
+    });
 
     for (const category of categories) {
       this.data.add(new Category(category));
@@ -32,15 +35,8 @@ export class Categories extends Updated {
     return this;
   }
 
-  async getDataFromDb() {
-    const db = await DB().connect(Categories.dbName);
-    const data = await db.query(
-      'SELECT * FROM `categories` WHERE `original_id` > 0'
-    );
-    await db.disconnect();
-
-    console.log('Categories: ', data.length);
-
-    return data;
+  log() {
+    console.log(`${this.constructor.name}: ${this.data.size}`);
+    return this;
   }
 }

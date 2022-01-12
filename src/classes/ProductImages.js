@@ -1,28 +1,38 @@
-import { DB } from '../utils/index.js';
-import { Products } from './Products.js';
 import { ProductImage } from './ProductImage.js';
 import { Updated } from './Updated.js';
 
 export class ProductImages extends Updated {
-  data = [];
+  static dbName = 'u15821_products';
 
-  async fill() {
-    this.children = await this.getDataFromDb(db).map(
-      (i) => new ProductImage(i)
-    );
+  data = new Map();
+
+  get(productId) {
+    return this.data.get(productId) ?? null;
   }
 
-  async getDataFromDb(db = null) {
-    const currentDb = db ?? (await DB().connect(Products.dbName));
-    const data = await currentDb.query(
-      'SELECT * FROM `product_images_originals` WHERE `product_id` = ?',
-      [this.parent.id]
-    );
+  async fill(db = null) {
+    this.data = new Map();
 
-    if (!db) {
-      await currentDb.disconnect();
+    const imagesDb = await this.getDataFromDb({
+      query: 'SELECT * FROM `product_images_originals`',
+      dbName: ProductImages.dbName,
+      db,
+    });
+
+    for (const imageDb of imagesDb) {
+      const image = new ProductImage(imageDb);
+      if (this.data.has(image.productId)) {
+        this.data.get(image.productId).push(image);
+      } else {
+        this.data.set(image.productId, [image]);
+      }
     }
 
-    return data ?? [];
+    return this;
+  }
+
+  log() {
+    console.log(`${this.constructor.name}: ${this.data.size}`);
+    return this;
   }
 }

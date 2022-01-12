@@ -4,25 +4,31 @@ import { Translations } from './Translations.js';
 import { Categories } from './Categories.js';
 import { Products } from './Products.js';
 import { Countries } from './Countries.js';
+import { ProductImages } from './ProductImages.js';
 import dotenv from 'dotenv';
+import { ProductFiles } from './ProductFiles.js';
 dotenv.config();
 
-/**
- * All global variables
- */
 class GlobalVariables {
   SRC_PATH = `${process.env.INSTALLED_PATH}src`;
 
   async init() {
-    this.langs = (await new Langs().fill()).update();
-    this.hosts = (await new Hosts().fill()).update();
-    this.countries = (await new Countries().fill()).update();
-    this.translations = (await new Translations(this.langs).fill()).update();
-    this.categories = (await new Categories().fill()).update();
-    this.products = (await new Products(this.categories).fill()).update();
+    this.langs = (await new Langs().fill()).update().log();
+    this.hosts = (await new Hosts().fill()).update().log();
+    this.countries = (await new Countries().fill()).update().log();
+    this.translations = (await new Translations(this.langs).fill())
+      .update()
+      .log();
+    this.categories = (await new Categories().fill()).update().log();
+    this.products = (await new Products(this.categories).fill()).update().log();
+    this.productsImages = (await new ProductImages().fill()).update().log();
+    this.productFiles = (await new ProductFiles().fill()).update().log();
 
     return this;
   }
 }
 
+/**
+ * All global variables
+ */
 export const globalVariables = new GlobalVariables();

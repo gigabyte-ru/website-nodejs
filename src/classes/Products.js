@@ -49,4 +49,13 @@ export class Products extends Updated {
 
     return this;
   }
+
+  log() {
+    let size = 0;
+    for (const category of this.data.values()) {
+      size += category.size;
+    }
+    console.log(`${this.constructor.name}: ${size}`);
+    return this;
+  }
 }

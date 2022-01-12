@@ -1,6 +1,5 @@
 import { Updated } from './Updated.js';
 import { Country } from './Country.js';
-import { DB } from '../utils/db.js';
 
 export class Countries extends Updated {
   static dbName = 'u15821_geo';
@@ -11,25 +10,25 @@ export class Countries extends Updated {
     return this.data.get(countryId);
   }
 
-  async fill() {
+  async fill(db = null) {
     this.data = new Map();
 
-    const countries = await this.getDataFromDb();
+    const countriesDb = await this.getDataFromDb({
+      query: 'SELECT * FROM `countries`',
+      dbName: Countries.dbName,
+      db,
+    });
 
-    for (const country of countries) {
-      this.data.set(country.id, new Country(country));
+    for (const countryDb of countriesDb) {
+      const country = new Country(countryDb);
+      this.data.set(country.id, country);
     }
 
     return this;
   }
 
-  async getDataFromDb() {
-    const db = await DB().connect(Countries.dbName);
-    const data = await db.query('SELECT * FROM `countries`');
-    await db.disconnect();
-
-    console.log('Countries: ', data.length);
-
-    return data;
+  log() {
+    console.log(`${this.constructor.name}: ${this.data.size}`);
+    return this;
   }
 }

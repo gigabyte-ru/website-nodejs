@@ -4,6 +4,8 @@ import { Langs } from './Langs.js';
 import { Translation } from './Translation.js';
 
 export class Translations extends Updated {
+  static dbName = 'u15821_global';
+
   data = new Map();
 
   constructor(langs = new Langs()) {
@@ -16,10 +18,14 @@ export class Translations extends Updated {
     return this.data.get(langId);
   }
 
-  async fill() {
+  async fill(db = null) {
     this.data = new Map();
 
-    const articles = await this.getDataFromDb();
+    const articles = await this.getDataFromDb({
+      query: 'SELECT * FROM `articles`',
+      dbName: Translations.dbName,
+      db,
+    });
 
     for (const langId of this.langs.data.keys()) {
       this.data.set(langId, new Map());
@@ -44,13 +50,12 @@ export class Translations extends Updated {
     return this;
   }
 
-  async getDataFromDb() {
-    const db = await DB().connect('u15821_global');
-    const data = await db.query('SELECT * FROM `articles`');
-    await db.disconnect();
-
-    console.log('Translations: ', data.length);
-
-    return data;
+  log() {
+    let size = 0;
+    for (const lang of this.data.values()) {
+      size += lang.size;
+    }
+    console.log(`${this.constructor.name}: ${size}`);
+    return this;
   }
 }
