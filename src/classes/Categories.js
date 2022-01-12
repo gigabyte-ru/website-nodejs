@@ -1,8 +1,10 @@
-import { Updated } from './updated.js';
+import { Updated } from './Updated.js';
 import { DB } from '../utils/db.js';
-import { Category } from './category.js';
+import { Category } from './Category.js';
 
 export class Categories extends Updated {
+  static dbName = 'u15821_products';
+
   data = new Set();
 
   get(categoryIdOrAlias) {
@@ -31,7 +33,7 @@ export class Categories extends Updated {
   }
 
   async getDataFromDb() {
-    const db = await DB().connect('u15821_products');
+    const db = await DB().connect(Categories.dbName);
     const data = await db.query(
       'SELECT * FROM `categories` WHERE `original_id` > 0'
     );

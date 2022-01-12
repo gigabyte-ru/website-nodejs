@@ -1,7 +1,7 @@
-import { Updated } from './updated.js';
+import { Updated } from './Updated.js';
 import { DB } from '../utils/db.js';
-import { Langs } from './langs.js';
-import { Translation } from './translation.js';
+import { Langs } from './Langs.js';
+import { Translation } from './Translation.js';
 
 export class Translations extends Updated {
   data = new Map();

@@ -1,9 +1,9 @@
-import { Langs } from './langs.js';
-import { Hosts } from './hosts.js';
-import { Translations } from './translations.js';
-import { Categories } from './categories.js';
-import { Products } from './products.js';
-import { Countries } from './countries.js';
+import { Langs } from './Langs.js';
+import { Hosts } from './Hosts.js';
+import { Translations } from './Translations.js';
+import { Categories } from './Categories.js';
+import { Products } from './Products.js';
+import { Countries } from './Countries.js';
 import dotenv from 'dotenv';
 dotenv.config();
 

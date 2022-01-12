@@ -4,7 +4,7 @@ import http from 'http';
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { globalVariables } from './classes/globalVariables.js';
+import { globalVariables } from './classes/GlobalVariables.js';
 import { processRoute } from './utils/index.js';
 
 const HTTP_PORT = process.env.SERVER_HTTP_PORT;

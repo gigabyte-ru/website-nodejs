@@ -1,6 +1,6 @@
-import { CurrentSession } from '../classes/currentSession.js';
+import { CurrentSession } from '../classes/CurrentSession.js';
 import { runRouteHandlerFromUrl } from './runRouteHandlerFromUrl.js';
-import { globalVariables } from '../classes/globalVariables.js';
+import { globalVariables } from '../classes/GlobalVariables.js';
 import { translateTemplate } from './translateTemplate.js';
 
 /**

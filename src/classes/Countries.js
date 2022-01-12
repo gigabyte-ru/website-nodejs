@@ -1,9 +1,11 @@
-import { Updated } from './updated.js';
-import { Country } from './country.js';
+import { Updated } from './Updated.js';
+import { Country } from './Country.js';
 import { DB } from '../utils/db.js';
 
 export class Countries extends Updated {
   static dbName = 'u15821_geo';
+
+  data = new Map();
 
   get(countryId) {
     return this.data.get(countryId);

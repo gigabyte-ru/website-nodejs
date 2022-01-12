@@ -1,5 +1,5 @@
 import { readTemplateFile } from '../utils/index.js';
-import { globalVariables } from '../classes/globalVariables.js';
+import { globalVariables } from '../classes/GlobalVariables.js';
 
 export class MainMenuHandler {
   async parse() {

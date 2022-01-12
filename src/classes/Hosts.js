@@ -1,6 +1,6 @@
-import { Updated } from './updated.js';
+import { Updated } from './Updated.js';
 import { DB } from '../utils/db.js';
-import { Host } from './host.js';
+import { Host } from './Host.js';
 
 export class Hosts extends Updated {
   data = new Map();

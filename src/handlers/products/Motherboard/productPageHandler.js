@@ -4,7 +4,7 @@ import {
   parseTemplateVariables,
 } from '../../../utils/index.js';
 import { MainMenuHandler } from '../../mainMenuHandler.js';
-import { globalVariables } from '../../../classes/globalVariables.js';
+import { globalVariables } from '../../../classes/GlobalVariables.js';
 
 export class ProductPageHandler {
   constructor(currentSession) {
