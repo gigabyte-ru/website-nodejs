@@ -9,6 +9,7 @@ import { translateTemplate } from './translateTemplate.js';
  * @param res
  */
 export const processRoute = async (req, res, type = 'http') => {
+  console.log('Check host:', req.headers.host);
   const host = globalVariables?.hosts?.get(req.headers.host);
 
   if (!host) {

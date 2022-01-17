@@ -1,4 +1,4 @@
-import { ProductImage } from './ProductImage.js';
+import { ProductImage } from './entities/ProductImage.js';
 import { Updated } from './Updated.js';
 
 export class ProductImages extends Updated {

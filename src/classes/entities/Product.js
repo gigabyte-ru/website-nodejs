@@ -1,4 +1,4 @@
-import { globalVariables } from './GlobalVariables.js';
+import { globalVariables } from '../GlobalVariables.js';
 
 export class Product {
   images = [];
@@ -17,6 +17,11 @@ export class Product {
 
   getFiles() {
     this.files = globalVariables.productFiles.get(this.id);
+    return this;
+  }
+
+  getCpus() {
+    this.cpus = globalVariables.productCpus.get(this.id);
     return this;
   }
 

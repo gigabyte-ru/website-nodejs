@@ -1,5 +1,5 @@
 import { Updated } from './Updated.js';
-import { Country } from './Country.js';
+import { Country } from './entities/Country.js';
 
 export class Countries extends Updated {
   static dbName = 'u15821_geo';

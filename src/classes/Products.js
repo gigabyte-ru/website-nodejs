@@ -1,6 +1,6 @@
 import { Updated } from './Updated.js';
 import { Categories } from './Categories.js';
-import { Product } from './Product.js';
+import { Product } from './entities/Product.js';
 
 export class Products extends Updated {
   static dbName = 'u15821_products';

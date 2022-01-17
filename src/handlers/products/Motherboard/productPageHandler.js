@@ -13,7 +13,7 @@ export class ProductPageHandler {
       currentSession.category,
       currentSession.route.params['productAlias']
     );
-    this.product.getImages().getFiles();
+    this.product.getImages().getFiles().getCpus();
     console.log(this.product);
     this.mainTemplatePath = `${globalVariables.SRC_PATH}/templates/products/${currentSession.category.originalAlias}/index.html`;
   }

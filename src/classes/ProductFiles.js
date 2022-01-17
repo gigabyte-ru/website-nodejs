@@ -1,10 +1,10 @@
 import { DB } from '../utils/index.js';
 import { Updated } from './Updated.js';
-import { File } from './File.js';
-import { FileGroup } from './FileGroup.js';
-import { FileType } from './FileType.js';
-import { Os } from './Os.js';
-import { ProductFile } from './ProductFile.js';
+import { File } from './entities/File.js';
+import { FileGroup } from './entities/FileGroup.js';
+import { FileType } from './entities/FileType.js';
+import { Os } from './entities/Os.js';
+import { ProductFile } from './entities/ProductFile.js';
 
 export class ProductFiles extends Updated {
   static dbName = 'u15821_products';

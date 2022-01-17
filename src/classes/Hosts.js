@@ -1,5 +1,5 @@
 import { Updated } from './Updated.js';
-import { Host } from './Host.js';
+import { Host } from './entities/Host.js';
 
 export class Hosts extends Updated {
   static dbName = 'u15821_global';
@@ -23,6 +23,17 @@ export class Hosts extends Updated {
       const host = new Host(domain);
       this.data.set(host.name, host);
     }
+
+    this.data.set(
+      'localhost:3020',
+      new Host({
+        lang_id: 1,
+        vicarial_lang_id: 1,
+        default_lang_id: 1,
+        name: 'Localhost',
+        country_id: 47,
+      })
+    );
 
     return this;
   }

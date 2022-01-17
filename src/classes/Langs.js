@@ -1,5 +1,5 @@
 import { Updated } from './Updated.js';
-import { Lang } from './Lang.js';
+import { Lang } from './entities/Lang.js';
 
 export class Langs extends Updated {
   static dbName = 'u15821_global';

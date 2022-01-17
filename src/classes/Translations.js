@@ -1,7 +1,7 @@
 import { Updated } from './Updated.js';
 import { DB } from '../utils/db.js';
 import { Langs } from './Langs.js';
-import { Translation } from './Translation.js';
+import { Translation } from './entities/Translation.js';
 
 export class Translations extends Updated {
   static dbName = 'u15821_global';
