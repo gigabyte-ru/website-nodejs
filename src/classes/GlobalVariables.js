@@ -1,14 +1,14 @@
-import { Langs } from './Langs.js';
-import { Hosts } from './Hosts.js';
-import { Translations } from './Translations.js';
-import { Categories } from './Categories.js';
-import { Products } from './Products.js';
-import { Countries } from './Countries.js';
-import { ProductImages } from './ProductImages.js';
+import { Langs } from './Langs';
+import { Hosts } from './Hosts';
+import { Translations } from './Translations';
+import { Categories } from './Categories';
+import { Products } from './Products';
+import { Countries } from './Countries';
+import { ProductImages } from './ProductImages';
 import dotenv from 'dotenv';
-import { ProductFiles } from './ProductFiles.js';
-import { Sockets } from './Sockets.js';
-import { ProductCpus } from './ProductCpus.js';
+import { ProductFiles } from './ProductFiles';
+import { Sockets } from './Sockets';
+import { ProductCpus } from './ProductCpus';
 dotenv.config();
 
 class GlobalVariables {

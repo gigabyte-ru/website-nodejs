@@ -1,4 +1,4 @@
-import { globalVariables } from './GlobalVariables.js';
+import { globalVariables } from './GlobalVariables';
 
 export class CurrentSession {
   constructor(req, host, connectionType) {

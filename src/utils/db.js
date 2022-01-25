@@ -1,7 +1,7 @@
-import mysql from 'mysql2/promise'
-import dotenv from 'dotenv'
+import mysql from 'mysql2/promise';
+import dotenv from 'dotenv';
 
-dotenv.config()
+dotenv.config();
 export const DB = () => {
   let connection = null;
 
@@ -15,17 +15,22 @@ export const DB = () => {
         port: process.env.DB_PORT,
       });
 
-      return db
+      return db;
     },
     async disconnect() {
-      return await connection?.end()
+      return await connection?.end();
     },
     async query(query, prepareParams = []) {
       const result = await connection.execute(query, prepareParams);
 
-      return result[0]
+      return result[0];
     },
-  }
+    async queryWithoutPrepare(query) {
+      const result = await connection.query(query);
 
-  return db
-}
+      return result[0];
+    },
+  };
+
+  return db;
+};

@@ -1,10 +1,13 @@
-import { Updated } from './Updated.js';
-import { DB } from '../utils/db.js';
-import { Langs } from './Langs.js';
-import { Translation } from './entities/Translation.js';
+import { Updated } from './Updated';
+import { Langs } from './Langs';
+import { Translation } from './entities';
+import { getDataFromDb } from '../utils';
 
 export class Translations extends Updated {
   static dbName = 'u15821_global';
+  static dbTables = {
+    articles: 'articles',
+  };
 
   data = new Map();
 
@@ -21,8 +24,8 @@ export class Translations extends Updated {
   async fill(db = null) {
     this.data = new Map();
 
-    const articles = await this.getDataFromDb({
-      query: 'SELECT * FROM `articles`',
+    const articles = await getDataFromDb({
+      query: `SELECT * FROM \`${Translations.dbTables.articles}\``,
       dbName: Translations.dbName,
       db,
     });

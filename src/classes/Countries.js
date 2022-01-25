@@ -1,8 +1,12 @@
-import { Updated } from './Updated.js';
-import { Country } from './entities/Country.js';
+import { Updated } from './Updated';
+import { Country } from './entities';
+import { getDataFromDb } from '../utils';
 
 export class Countries extends Updated {
   static dbName = 'u15821_geo';
+  static dbTables = {
+    countries: 'countries',
+  };
 
   data = new Map();
 
@@ -13,8 +17,8 @@ export class Countries extends Updated {
   async fill(db = null) {
     this.data = new Map();
 
-    const countriesDb = await this.getDataFromDb({
-      query: 'SELECT * FROM `countries`',
+    const countriesDb = await getDataFromDb({
+      query: `SELECT * FROM \`${Countries.dbTables.countries}\``,
       dbName: Countries.dbName,
       db,
     });

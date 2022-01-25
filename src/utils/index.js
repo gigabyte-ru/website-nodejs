@@ -5,3 +5,6 @@ export * from './processRoute.js';
 export * from './readTemplateFile.js';
 export * from './runRouteHandlerFromUrl.js';
 export * from './parseTemplateVariables.js';
+export * from './getArrayFromObject.js';
+export * from './createTriggers.js';
+export * from './getDataFromDb.js';

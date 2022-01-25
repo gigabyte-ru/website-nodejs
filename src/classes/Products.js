@@ -1,9 +1,13 @@
-import { Updated } from './Updated.js';
-import { Categories } from './Categories.js';
-import { Product } from './entities/Product.js';
+import { Updated } from './Updated';
+import { Categories } from './Categories';
+import { Product } from './entities';
+import { getDataFromDb } from '../utils';
 
 export class Products extends Updated {
   static dbName = 'u15821_products';
+  static dbTables = {
+    products: 'products',
+  };
 
   data = new Map();
 
@@ -24,8 +28,8 @@ export class Products extends Updated {
       this.data.set(category, new Map());
     }
 
-    const products = await this.getDataFromDb({
-      query: 'SELECT * FROM `products` WHERE `original_alias` IS NOT NULL',
+    const products = await getDataFromDb({
+      query: `SELECT * FROM \`${Products.dbTables.products}\` WHERE \`original_alias\` IS NOT NULL`,
       dbName: Products.dbName,
       db,
     });

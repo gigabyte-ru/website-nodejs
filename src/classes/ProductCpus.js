@@ -1,12 +1,16 @@
-import { Updated } from './Updated.js';
-import { DB } from '../utils/index.js';
-import { Cpu } from './entities/Cpu.js';
-import { CpuOption } from './entities/CpuOption.js';
-import { CpuOptionValue } from './entities/CpuOptionValue.js';
-import { ProductCpu } from './entities/ProductCpu.js';
+import { Updated } from './Updated';
+import { DB, getDataFromDb } from '../utils';
+import { Cpu, CpuOption, CpuOptionValue, ProductCpu } from './entities';
 
 export class ProductCpus extends Updated {
   static dbName = 'u15821_products';
+  static dbTables = {
+    cpu: 'cpu',
+    cpuParts: 'cpuparts',
+    cpuPartItems: 'cpupart_items',
+    cpuCpuPartItems: 'cpu_cpupart_items',
+    productCpus: 'product_cpu',
+  };
 
   data = new Map();
 
@@ -22,8 +26,8 @@ export class ProductCpus extends Updated {
     const currentDb = db ?? (await DB().connect(ProductCpus.dbName));
 
     (
-      await this.getDataFromDb({
-        query: 'SELECT * FROM `cpu`',
+      await getDataFromDb({
+        query: `SELECT * FROM \`${ProductCpus.dbTables.cpu}\``,
         db: currentDb,
       })
     ).forEach((cpu) => {
@@ -31,8 +35,8 @@ export class ProductCpus extends Updated {
     });
 
     (
-      await this.getDataFromDb({
-        query: 'SELECT * FROM `cpuparts`',
+      await getDataFromDb({
+        query: `SELECT * FROM \`${ProductCpus.dbTables.cpuParts}\``,
         db: currentDb,
       })
     ).forEach((c) => {
@@ -40,8 +44,8 @@ export class ProductCpus extends Updated {
     });
 
     (
-      await this.getDataFromDb({
-        query: 'SELECT * FROM `cpupart_items`',
+      await getDataFromDb({
+        query: `SELECT * FROM \`${ProductCpus.dbTables.cpuPartItems}\``,
         db: currentDb,
       })
     ).forEach((c) => {
@@ -54,8 +58,8 @@ export class ProductCpus extends Updated {
     });
 
     (
-      await this.getDataFromDb({
-        query: 'SELECT * FROM `cpu_cpupart_items`',
+      await getDataFromDb({
+        query: `SELECT * FROM \`${ProductCpus.dbTables.cpuCpuPartItems}\``,
         db: currentDb,
       })
     ).forEach((c) => {
@@ -69,8 +73,8 @@ export class ProductCpus extends Updated {
     });
 
     (
-      await this.getDataFromDb({
-        query: 'SELECT * FROM `product_cpu`',
+      await getDataFromDb({
+        query: `SELECT * FROM \`${ProductCpus.dbTables.productCpus}\``,
         db: currentDb,
       })
     ).forEach((p) => {

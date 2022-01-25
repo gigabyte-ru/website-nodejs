@@ -1,6 +1,9 @@
-import { DB } from '../utils/index.js';
+import { DB, getArrayFromObject, getTriggerQueries, TRIGGERS } from '../utils';
 
 export class Updated {
+  static dbName = '';
+  static dbTables = [];
+
   updatedAt = new Date();
 
   update() {
@@ -9,14 +12,35 @@ export class Updated {
     return this;
   }
 
-  async getDataFromDb({ query, prepareParams = [], dbName, db = null }) {
-    const currentDb = db ?? (await DB().connect(dbName));
-    const data = await currentDb.query(query, prepareParams);
+  async createTriggers(db = null) {
+    const dbName = this.constructor.dbName;
+    const dbTables = getArrayFromObject(this.constructor.dbTables);
 
-    if (!db) {
-      await currentDb.disconnect();
+    if (dbTables.length) {
+      const currentDb = db ?? (await DB().connect(dbName));
+
+      for (const dbTable of dbTables) {
+        for (const trigger of getArrayFromObject(TRIGGERS)) {
+          const queries = getTriggerQueries({
+            trigger,
+            dbName,
+            dbTable,
+          });
+          try {
+            for (const query of queries) {
+              await currentDb.queryWithoutPrepare(query);
+            }
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      }
+
+      if (!db) {
+        await currentDb.disconnect();
+      }
     }
 
-    return data ?? [];
+    return this;
   }
 }

@@ -1,8 +1,12 @@
-import { Updated } from './Updated.js';
-import { Socket } from './entities/Socket.js';
+import { Updated } from './Updated';
+import { Socket } from './entities';
+import { getDataFromDb } from '../utils';
 
 export class Sockets extends Updated {
   static dbName = 'u15821_products';
+  static dbTables = {
+    sockets: 'sockets',
+  };
 
   data = new Map();
 
@@ -13,8 +17,8 @@ export class Sockets extends Updated {
   async fill(db = null) {
     this.data = new Map();
 
-    const socketsDb = await this.getDataFromDb({
-      query: 'SELECT * FROM `sockets`',
+    const socketsDb = await getDataFromDb({
+      query: `SELECT * FROM \`${Sockets.dbTables.sockets}\``,
       dbName: Sockets.dbName,
       db,
     });

@@ -1,8 +1,12 @@
-import { Updated } from './Updated.js';
-import { Host } from './entities/Host.js';
+import { Updated } from './Updated';
+import { Host } from './entities';
+import { getDataFromDb } from '../utils';
 
 export class Hosts extends Updated {
   static dbName = 'u15821_global';
+  static dbTables = {
+    domains: 'domains',
+  };
 
   data = new Map();
 
@@ -13,8 +17,8 @@ export class Hosts extends Updated {
   async fill(db = null) {
     this.data = new Map();
 
-    const domainsDb = await this.getDataFromDb({
-      query: 'SELECT * FROM `domains`',
+    const domainsDb = await getDataFromDb({
+      query: `SELECT * FROM \`${Hosts.dbTables.domains}\``,
       dbName: Hosts.dbName,
       db,
     });

@@ -1,13 +1,17 @@
-import { DB } from '../utils/index.js';
-import { Updated } from './Updated.js';
-import { File } from './entities/File.js';
-import { FileGroup } from './entities/FileGroup.js';
-import { FileType } from './entities/FileType.js';
-import { Os } from './entities/Os.js';
-import { ProductFile } from './entities/ProductFile.js';
+import { DB, getDataFromDb } from '../utils';
+import { Updated } from './Updated';
+import { File, FileGroup, FileType, Os, ProductFile } from './entities';
 
 export class ProductFiles extends Updated {
   static dbName = 'u15821_products';
+  static dbTables = {
+    files: 'files',
+    fileGroups: 'file_groups',
+    fileTypes: 'file_types',
+    os: 'OS',
+    osFiles: 'OS_files',
+    productFiles: 'product_files',
+  };
 
   data = new Map();
 
@@ -25,8 +29,8 @@ export class ProductFiles extends Updated {
     const currentDb = db ?? (await DB().connect(ProductFiles.dbName));
 
     (
-      await this.getDataFromDb({
-        query: 'SELECT * FROM `files`',
+      await getDataFromDb({
+        query: `SELECT * FROM \`${ProductFiles.dbTables.files}\``,
         db: currentDb,
       })
     ).forEach((f) => {
@@ -34,8 +38,8 @@ export class ProductFiles extends Updated {
     });
 
     (
-      await this.getDataFromDb({
-        query: 'SELECT * FROM `file_groups`',
+      await getDataFromDb({
+        query: `SELECT * FROM \`${ProductFiles.dbTables.fileGroups}\``,
         db: currentDb,
       })
     ).forEach((f) => {
@@ -43,8 +47,8 @@ export class ProductFiles extends Updated {
     });
 
     (
-      await this.getDataFromDb({
-        query: 'SELECT * FROM `file_types`',
+      await getDataFromDb({
+        query: `SELECT * FROM \`${ProductFiles.dbTables.fileTypes}\``,
         db: currentDb,
       })
     ).forEach((f) => {
@@ -52,8 +56,8 @@ export class ProductFiles extends Updated {
     });
 
     (
-      await this.getDataFromDb({
-        query: 'SELECT * FROM `OS`',
+      await getDataFromDb({
+        query: `SELECT * FROM \`${ProductFiles.dbTables.os}\``,
         db: currentDb,
       })
     ).forEach((f) => {
@@ -61,8 +65,8 @@ export class ProductFiles extends Updated {
     });
 
     (
-      await this.getDataFromDb({
-        query: 'SELECT * FROM `OS_files`',
+      await getDataFromDb({
+        query: `SELECT * FROM \`${ProductFiles.dbTables.osFiles}\``,
         db: currentDb,
       })
     ).forEach((f) => {
@@ -78,8 +82,8 @@ export class ProductFiles extends Updated {
     });
 
     (
-      await this.getDataFromDb({
-        query: 'SELECT * FROM `product_files`',
+      await getDataFromDb({
+        query: `SELECT * FROM \`${ProductFiles.dbTables.productFiles}\``,
         db: currentDb,
       })
     ).forEach((f) => {

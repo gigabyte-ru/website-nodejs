@@ -1,8 +1,12 @@
-import { ProductImage } from './entities/ProductImage.js';
-import { Updated } from './Updated.js';
+import { ProductImage } from './entities';
+import { Updated } from './Updated';
+import { getDataFromDb } from '../utils';
 
 export class ProductImages extends Updated {
   static dbName = 'u15821_products';
+  static dbTables = {
+    productImagesOriginals: 'product_images_originals',
+  };
 
   data = new Map();
 
@@ -13,8 +17,8 @@ export class ProductImages extends Updated {
   async fill(db = null) {
     this.data = new Map();
 
-    const imagesDb = await this.getDataFromDb({
-      query: 'SELECT * FROM `product_images_originals`',
+    const imagesDb = await getDataFromDb({
+      query: `SELECT * FROM \`${ProductImages.dbTables.productImagesOriginals}\``,
       dbName: ProductImages.dbName,
       db,
     });

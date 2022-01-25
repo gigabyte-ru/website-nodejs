@@ -1,8 +1,12 @@
-import { Updated } from './Updated.js';
-import { Lang } from './entities/Lang.js';
+import { Updated } from './Updated';
+import { Lang } from './entities';
+import { getDataFromDb } from '../utils';
 
 export class Langs extends Updated {
   static dbName = 'u15821_global';
+  static dbTables = {
+    langs: 'langs',
+  };
 
   data = new Map();
 
@@ -13,8 +17,8 @@ export class Langs extends Updated {
   async fill(db = null) {
     this.data = new Map();
 
-    const langsDb = await this.getDataFromDb({
-      query: 'SELECT * FROM `langs`',
+    const langsDb = await getDataFromDb({
+      query: `SELECT * FROM \`${Langs.dbTables.langs}\``,
       dbName: Langs.dbName,
       db,
     });

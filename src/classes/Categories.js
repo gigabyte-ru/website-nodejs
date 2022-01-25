@@ -1,8 +1,12 @@
-import { Updated } from './Updated.js';
-import { Category } from './entities/Category.js';
+import { Updated } from './Updated';
+import { Category } from './entities';
+import { getDataFromDb } from '../utils';
 
 export class Categories extends Updated {
   static dbName = 'u15821_products';
+  static dbTables = {
+    categories: 'categories',
+  };
 
   data = new Set();
 
@@ -22,8 +26,8 @@ export class Categories extends Updated {
   async fill(db = null) {
     this.data = new Set();
 
-    const categories = await this.getDataFromDb({
-      query: 'SELECT * FROM `categories` WHERE `original_id` > 0',
+    const categories = await getDataFromDb({
+      query: `SELECT * FROM \`${Categories.dbTables.categories}\` WHERE \`original_id\` > 0`,
       dbName: Categories.dbName,
       db,
     });
