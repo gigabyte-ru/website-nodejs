@@ -2,10 +2,10 @@
  * Handler for page /products/page/:categoryId/:productId/:tab
  * @returns {string}
  */
-import { globalVariables } from '../../classes/GlobalVariables.js';
+import { GlobalVariables, globalVariables } from '../../classes';
 
 export const productPage = async (currentSession) => {
-  const category = globalVariables.categories.get(
+  const category = globalVariables.variables.categories.get(
     currentSession.route.params['categoryAlias']
   );
 
@@ -17,7 +17,7 @@ export const productPage = async (currentSession) => {
 
   try {
     const { ProductPageHandler } = await import(
-      `${globalVariables.SRC_PATH}/handlers/products/${category.originalAlias}/productPageHandler.js`
+      `${GlobalVariables.SRC_PATH}/handlers/products/${category.originalAlias}/productPageHandler.js`
     );
 
     currentSession.addCategory(category);

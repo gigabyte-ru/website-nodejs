@@ -9,6 +9,9 @@ export class Translations extends Updated {
     articles: 'articles',
   };
 
+  /**
+   * @type { Map<number, Map<string|number, Translation>> }
+   */
   data = new Map();
 
   constructor(langs = new Langs()) {
@@ -41,15 +44,52 @@ export class Translations extends Updated {
         continue;
       }
 
-      const translation = new Translation(articleDb);
-
-      if (translation.alias) {
-        dataMap.set(translation.alias, translation);
-      }
-
-      dataMap.set(translation.id, translation);
+      this.insertEntity(new Translation(articleDb));
     }
 
+    return this;
+  }
+
+  /**
+   * @param { Translation } translation
+   */
+  insertEntity(translation) {
+    const dataMap = this.data.get(translation.langId);
+
+    if (!dataMap) {
+      return this;
+    }
+
+    dataMap.set(translation.articleId, translation);
+
+    if (translation.alias) {
+      dataMap.set(translation.alias, translation);
+    }
+
+    return this;
+  }
+
+  /**
+   * @param {Translation} translation
+   */
+  deleteEntity(translation) {
+    const dataMap = this.data.get(translation.langId);
+
+    dataMap.delete(translation.articleId);
+
+    if (translation.alias) {
+      dataMap.delete(translation.alias);
+    }
+
+    return this;
+  }
+
+  /**
+   * @param {Translation} translation
+   */
+  updateEntity(translation) {
+    this.deleteEntity(translation);
+    this.insertEntity(translation);
     return this;
   }
 
@@ -60,5 +100,57 @@ export class Translations extends Updated {
     }
     console.log(`${this.constructor.name}: ${size}`);
     return this;
+  }
+
+  /**
+   * @param { Array<ChangeLog> } changeLogs
+   */
+  update(changeLogs = []) {
+    super.update(changeLogs);
+
+    this.updateArticles(this.changeLogs[Translations.dbTables.articles]).then();
+
+    return this;
+  }
+
+  /**
+   * @param { ChangeLogEntities } changeLogsEntities
+   */
+  async updateArticles(changeLogsEntities) {
+    const {
+      insert: insertIds,
+      update: updateIds,
+      delete: deleteIds,
+    } = changeLogsEntities;
+    const insertUpdateIds = [...insertIds, ...updateIds];
+
+    if (insertUpdateIds.length) {
+      /**
+       * @type { Array<Translation> }
+       */
+      const articles = (
+        await getDataFromDb({
+          query: `SELECT * FROM \`${Translations.dbTables.articles}\` WHERE \`id\` IN (?)`,
+          prepareParams: insertUpdateIds,
+          dbName: Translations.dbName,
+        })
+      ).map((a) => new Translation(a));
+
+      for (const article of articles) {
+        console.log(`Update/insert article ${article.id} `);
+
+        this.updateEntity(article);
+      }
+    }
+
+    for (const langMap of this.data.values()) {
+      for (const article of langMap.values()) {
+        if (deleteIds.includes(article.id)) {
+          console.log(`Delete article ${article}`);
+
+          this.deleteEntity(article);
+        }
+      }
+    }
   }
 }

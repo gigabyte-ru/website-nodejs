@@ -11,15 +11,21 @@ import {
   Translations,
 } from '../classes';
 
+const classes = [
+  Langs,
+  Hosts,
+  Countries,
+  Translations,
+  Categories,
+  Sockets,
+  Products,
+  ProductImages,
+  ProductFiles,
+  ProductCpus,
+];
+
 (async () => {
-  await new Langs().createTriggers();
-  await new Hosts().createTriggers();
-  await new Countries().createTriggers();
-  await new Translations().createTriggers();
-  await new Categories().createTriggers();
-  await new Sockets().createTriggers();
-  await new Products().createTriggers();
-  await new ProductImages().createTriggers();
-  await new ProductFiles().createTriggers();
-  await new ProductCpus().createTriggers();
+  for (const className of classes) {
+    await new className().createTriggers();
+  }
 })();

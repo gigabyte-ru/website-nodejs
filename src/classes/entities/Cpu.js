@@ -11,7 +11,7 @@ export class Cpu {
   }
 
   getSocket() {
-    this.socket = globalVariables.sockets.get(this.socketId);
+    this.socket = globalVariables.variables.sockets.get(this.socketId);
   }
 
   setOptionValue(option, value) {

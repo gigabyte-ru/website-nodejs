@@ -27,7 +27,7 @@ export const getTriggerQueries = ({ trigger, dbName, dbTable }) => {
     INSERT INTO \`u15824_logs\`.\`db_change_log\` (\`action\`,\`db\`,\`db_table\`,\`primary_key\`) 
     VALUES (
       '${trigger.action.toLowerCase()}',
-      DATABASE(),
+      '${dbName}',
       '${dbTable}',
       ${trigger.idFrom}.id
     );`

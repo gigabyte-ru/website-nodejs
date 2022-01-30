@@ -13,7 +13,7 @@ export class Socket {
   }
 
   getCategory() {
-    this.category = globalVariables.categories.get(this.categoryId);
+    this.category = globalVariables.variables.categories.get(this.categoryId);
     return this;
   }
 }

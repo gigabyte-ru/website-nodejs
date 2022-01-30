@@ -1,9 +1,9 @@
-import { readTemplateFile } from '../utils/index.js';
-import { globalVariables } from '../classes/GlobalVariables.js';
+import { readTemplateFile } from '../utils';
+import { GlobalVariables } from '../classes';
 
 export class MainMenuHandler {
   async parse() {
-    const templatePath = `${globalVariables.SRC_PATH}/templates/menu/main.html`;
+    const templatePath = `${GlobalVariables.SRC_PATH}/templates/menu/main.html`;
     return await readTemplateFile(templatePath);
   }
 }

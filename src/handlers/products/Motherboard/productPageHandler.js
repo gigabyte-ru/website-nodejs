@@ -2,20 +2,20 @@ import {
   parseTemplateBlocks,
   readTemplateFile,
   parseTemplateVariables,
-} from '../../../utils/index.js';
+} from '../../../utils';
 import { MainMenuHandler } from '../../mainMenuHandler.js';
-import { globalVariables } from '../../../classes/GlobalVariables.js';
+import { GlobalVariables, globalVariables } from '../../../classes';
 
 export class ProductPageHandler {
   constructor(currentSession) {
     this.currentSession = currentSession;
-    this.product = globalVariables.products.get(
+    this.product = globalVariables.variables.products.get(
       currentSession.category,
       currentSession.route.params['productAlias']
     );
     this.product.getImages().getFiles().getCpus();
     console.log(this.product);
-    this.mainTemplatePath = `${globalVariables.SRC_PATH}/templates/products/${currentSession.category.originalAlias}/index.html`;
+    this.mainTemplatePath = `${GlobalVariables.SRC_PATH}/templates/products/${currentSession.category.originalAlias}/index.html`;
   }
 
   async parseLocalModules() {

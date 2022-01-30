@@ -16,17 +16,17 @@ export class CurrentSession {
     this.host = host;
 
     this.translations = {
-      first: globalVariables.translations.get(
+      first: globalVariables.variables.translations.get(
         host.firstLangId ?? defaultLangId
       ),
-      second: globalVariables.translations.get(
+      second: globalVariables.variables.translations.get(
         host.secondLangId ?? defaultLangId
       ),
-      default: globalVariables.translations.get(
+      default: globalVariables.variables.translations.get(
         host.defaultLangId ?? defaultLangId
       ),
     };
-    this.country = globalVariables.countries.get(this.host.countryId);
+    this.country = globalVariables.variables.countries.get(this.host.countryId);
   }
 
   addRoute(route) {

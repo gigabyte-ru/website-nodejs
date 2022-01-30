@@ -1,6 +1,8 @@
 export class Translation {
   constructor(articleDb) {
-    this.id = articleDb['article_id'];
+    this.id = articleDb['id'];
+    this.langId = articleDb['lang_id'];
+    this.articleId = articleDb['article_id'];
     this.alias = articleDb['alias'];
     this.name = articleDb['name'];
     this.abstract = articleDb['abstract'];

@@ -11,17 +11,17 @@ export class Product {
   }
 
   getImages() {
-    this.images = globalVariables.productsImages.get(this.id);
+    this.images = globalVariables.variables.productsImages.get(this.id);
     return this;
   }
 
   getFiles() {
-    this.files = globalVariables.productFiles.get(this.id);
+    this.files = globalVariables.variables.productFiles.get(this.id);
     return this;
   }
 
   getCpus() {
-    this.cpus = globalVariables.productCpus.get(this.id);
+    this.cpus = globalVariables.variables.productCpus.get(this.id);
     return this;
   }
 

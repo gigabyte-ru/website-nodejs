@@ -10,7 +10,7 @@ import { translateTemplate } from './translateTemplate.js';
  */
 export const processRoute = async (req, res, type = 'http') => {
   console.log('Check host:', req.headers.host);
-  const host = globalVariables?.hosts?.get(req.headers.host);
+  const host = globalVariables?.variables.hosts?.get(req.headers.host);
 
   if (!host) {
     res.statusCode = 404;

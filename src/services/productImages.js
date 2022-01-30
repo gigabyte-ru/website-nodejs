@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { DB } from '../utils/db.js';
+import { getValueFromArgv } from '../utils';
 
 const hqUrl = 'https://global-test.gigabyte.com/json/ProductImages?id=';
 
@@ -81,3 +82,9 @@ export const getProductImages = async (productId = null) => {
 
   await db.disconnect();
 };
+
+const productId = getValueFromArgv('productId', (val) =>
+  Number.isInteger(+val) ? Number(val) : null
+);
+
+getProductImages(productId).then();
