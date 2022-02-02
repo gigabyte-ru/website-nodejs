@@ -13,8 +13,66 @@ export class Hosts extends Updated {
    */
   data = new Map();
 
+  log() {
+    console.log(`${this.constructor.name}: ${this.data.size}`);
+    return this;
+  }
+
   get(hostname) {
     return this.data.get(hostname);
+  }
+
+  /**
+   * @param {Host} entity
+   * @param {string | null} table
+   */
+  insertEntity(entity, table = null) {
+    if (!this.data.has(entity.name)) {
+      this.data.set(entity.name, entity);
+    }
+    return this;
+  }
+
+  /**
+   * @param {Host} entity
+   * @param {string | null} table
+   */
+  deleteEntity(entity, table = null) {
+    this.data.delete(entity.name);
+    return this;
+  }
+
+  /**
+   * @param {Host} entity
+   * @param {string | null} table
+   */
+  updateEntity(entity, table = null) {
+    this.data.set(entity.name, entity);
+    return this;
+  }
+
+  deleteEntityById(entityId, table) {
+    for (const host of this.data.values()) {
+      if (host.id === entityId) {
+        this.deleteEntity(host);
+      }
+    }
+
+    return this;
+  }
+
+  /**
+   * @param { Array<ChangeLog> } changeLogs
+   */
+  async update(changeLogs = []) {
+    await super.update(changeLogs);
+
+    await this.updateDbTableEntities({
+      dbName: Hosts.dbName,
+      table: Hosts.dbTables.domains,
+    });
+
+    return this;
   }
 
   async fill(db = null) {
@@ -41,87 +99,5 @@ export class Hosts extends Updated {
     );
 
     return this;
-  }
-
-  /**
-   * @param {Host} host
-   */
-  insertEntity(host) {
-    this.data.set(host.name, host);
-    return this;
-  }
-
-  /**
-   * @param {Host} host
-   */
-  deleteEntity(host) {
-    this.data.delete(host.name);
-    return this;
-  }
-
-  /**
-   * @param {Host} host
-   */
-  updateEntity(host) {
-    this.deleteEntity(host);
-    this.insertEntity(host);
-    return this;
-  }
-
-  log() {
-    console.log(`${this.constructor.name}: ${this.data.size}`);
-    return this;
-  }
-
-  /**
-   * @param { Array<ChangeLog> } changeLogs
-   */
-  update(changeLogs = []) {
-    super.update(changeLogs);
-
-    this.updateHosts(this.changeLogs[Hosts.dbTables.domains]).then();
-
-    return this;
-  }
-
-  /**
-   * @param { ChangeLogEntities } changeLogsEntities
-   */
-  async updateHosts(changeLogsEntities) {
-    const {
-      insert: insertIds,
-      update: updateIds,
-      delete: deleteIds,
-    } = changeLogsEntities;
-    const insertUpdateIds = [...insertIds, ...updateIds];
-
-    if (insertUpdateIds.length) {
-      /**
-       * @type { Array<Host> }
-       */
-      const hosts = (
-        await getDataFromDb({
-          query: `SELECT * FROM \`${Hosts.dbTables.domains}\` WHERE \`id\` IN (?)`,
-          prepareParams: insertUpdateIds,
-          dbName: Hosts.dbName,
-        })
-      ).map((a) => new Host(a));
-
-      for (const host of hosts) {
-        console.log(`Update/insert host ${host.name} `);
-
-        this.updateEntity(host);
-      }
-    }
-
-    for (const deleteId of deleteIds) {
-      for (const host of this.data.values()) {
-        if (host.id === deleteId) {
-          console.log(`Delete host '${host.name}'`);
-
-          this.deleteEntity(host);
-        }
-      }
-    }
   }
 }

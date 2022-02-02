@@ -8,6 +8,9 @@ export class ProductImages extends Updated {
     productImagesOriginals: 'product_images_originals',
   };
 
+  /**
+   * @type { Map<number, [ProductImage]> }
+   */
   data = new Map();
 
   get(productId) {
@@ -24,11 +27,11 @@ export class ProductImages extends Updated {
     });
 
     for (const imageDb of imagesDb) {
-      const image = new ProductImage(imageDb);
-      if (this.data.has(image.productId)) {
-        this.data.get(image.productId).push(image);
+      const productImage = new ProductImage(imageDb);
+      if (this.data.has(productImage.productId)) {
+        this.data.get(productImage.productId).push(productImage);
       } else {
-        this.data.set(image.productId, [image]);
+        this.data.set(productImage.productId, [productImage]);
       }
     }
 

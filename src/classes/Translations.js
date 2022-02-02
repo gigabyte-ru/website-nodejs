@@ -14,14 +14,106 @@ export class Translations extends Updated {
    */
   data = new Map();
 
+  /**
+   * @type { Map<number, Translation> }
+   */
+  dataMapId = new Map();
+
   constructor(langs = new Langs()) {
     super();
 
     this.langs = langs;
   }
 
+  log() {
+    let size = 0;
+    for (const lang of this.data.values()) {
+      size += lang.size;
+    }
+    console.log(`${this.constructor.name}: ${size}`);
+    return this;
+  }
+
   get(langId) {
     return this.data.get(langId);
+  }
+
+  /**
+   * @param { Translation } entity
+   * @param {string | null} table
+   */
+  insertEntity(entity, table = null) {
+    const dataMap = this.data.get(entity.langId);
+
+    if (!dataMap) {
+      return this;
+    }
+
+    dataMap.set(entity.articleId, entity);
+
+    if (entity.alias) {
+      dataMap.set(entity.alias, entity);
+    }
+
+    this.dataMapId.set(entity.id, entity);
+
+    return this;
+  }
+
+  /**
+   * @param {Translation} entity
+   * @param table
+   */
+  deleteEntity(entity, table = null) {
+    const dataMap = this.data.get(entity.langId);
+
+    dataMap.delete(entity.articleId);
+
+    if (entity.alias) {
+      dataMap.delete(entity.alias);
+    }
+
+    this.dataMapId.delete(entity.id);
+
+    return this;
+  }
+
+  /**
+   * @param {Translation} entity
+   * @param {string | null} table
+   */
+  updateEntity(entity, table = null) {
+    this.insertEntity(entity);
+
+    return this;
+  }
+
+  /**
+   * @param {number} entityId
+   * @param {string | null} table
+   */
+  deleteEntityById(entityId, table = null) {
+    const entity = this.dataMapId.get(entityId);
+
+    if (entity) {
+      this.deleteEntity(entity);
+    }
+
+    return this;
+  }
+
+  /**
+   * @param { Array<ChangeLog> } changeLogs
+   */
+  async update(changeLogs = []) {
+    await super.update(changeLogs);
+
+    await this.updateDbTableEntities({
+      dbName: Translations.dbName,
+      table: Translations.dbTables.articles,
+    });
+
+    return this;
   }
 
   async fill(db = null) {
@@ -48,109 +140,5 @@ export class Translations extends Updated {
     }
 
     return this;
-  }
-
-  /**
-   * @param { Translation } translation
-   */
-  insertEntity(translation) {
-    const dataMap = this.data.get(translation.langId);
-
-    if (!dataMap) {
-      return this;
-    }
-
-    dataMap.set(translation.articleId, translation);
-
-    if (translation.alias) {
-      dataMap.set(translation.alias, translation);
-    }
-
-    return this;
-  }
-
-  /**
-   * @param {Translation} translation
-   */
-  deleteEntity(translation) {
-    const dataMap = this.data.get(translation.langId);
-
-    dataMap.delete(translation.articleId);
-
-    if (translation.alias) {
-      dataMap.delete(translation.alias);
-    }
-
-    return this;
-  }
-
-  /**
-   * @param {Translation} translation
-   */
-  updateEntity(translation) {
-    this.deleteEntity(translation);
-    this.insertEntity(translation);
-    return this;
-  }
-
-  log() {
-    let size = 0;
-    for (const lang of this.data.values()) {
-      size += lang.size;
-    }
-    console.log(`${this.constructor.name}: ${size}`);
-    return this;
-  }
-
-  /**
-   * @param { Array<ChangeLog> } changeLogs
-   */
-  update(changeLogs = []) {
-    super.update(changeLogs);
-
-    this.updateArticles(this.changeLogs[Translations.dbTables.articles]).then();
-
-    return this;
-  }
-
-  /**
-   * @param { ChangeLogEntities } changeLogsEntities
-   */
-  async updateArticles(changeLogsEntities) {
-    const {
-      insert: insertIds,
-      update: updateIds,
-      delete: deleteIds,
-    } = changeLogsEntities;
-    const insertUpdateIds = [...insertIds, ...updateIds];
-
-    if (insertUpdateIds.length) {
-      /**
-       * @type { Array<Translation> }
-       */
-      const articles = (
-        await getDataFromDb({
-          query: `SELECT * FROM \`${Translations.dbTables.articles}\` WHERE \`id\` IN (?)`,
-          prepareParams: insertUpdateIds,
-          dbName: Translations.dbName,
-        })
-      ).map((a) => new Translation(a));
-
-      for (const article of articles) {
-        console.log(`Update/insert article ${article.id} `);
-
-        this.updateEntity(article);
-      }
-    }
-
-    for (const langMap of this.data.values()) {
-      for (const article of langMap.values()) {
-        if (deleteIds.includes(article.id)) {
-          console.log(`Delete article ${article}`);
-
-          this.deleteEntity(article);
-        }
-      }
-    }
   }
 }

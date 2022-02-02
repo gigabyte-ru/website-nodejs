@@ -1,6 +1,9 @@
-export class Translation {
+import { Entity } from './Entity';
+
+export class Translation extends Entity {
   constructor(articleDb) {
-    this.id = articleDb['id'];
+    super(articleDb);
+
     this.langId = articleDb['lang_id'];
     this.articleId = articleDb['article_id'];
     this.alias = articleDb['alias'];

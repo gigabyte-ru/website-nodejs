@@ -1,6 +1,9 @@
-export class FileType {
+import { Entity } from './Entity';
+
+export class FileType extends Entity {
   constructor(fileTypeDb) {
-    this.id = fileTypeDb['id'];
+    super(fileTypeDb);
+
     this.hqKey = fileTypeDb['hq_key'];
     this.dirname = fileTypeDb['dirname'];
     this.name = fileTypeDb['name'];

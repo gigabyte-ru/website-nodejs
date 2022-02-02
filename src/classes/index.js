@@ -3,6 +3,7 @@ export * from './Categories';
 export * from './Countries';
 export * from './CurrentSession';
 export * from './GlobalVariables';
+export * from './GlobalVariablesParser';
 export * from './Hosts';
 export * from './Langs';
 export * from './ProductCpus';

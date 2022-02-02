@@ -1,6 +1,9 @@
-export class Lang {
+import { Entity } from './Entity';
+
+export class Lang extends Entity {
   constructor(lang) {
-    this.id = lang['id'];
+    super(lang);
+
     this.alias = lang['alias'];
   }
 }

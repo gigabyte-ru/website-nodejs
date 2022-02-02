@@ -1,10 +1,12 @@
 import { globalVariables } from '../GlobalVariables.js';
+import { Entity } from './Entity';
 
-export class Product {
+export class Product extends Entity {
   images = [];
 
   constructor(productDb) {
-    this.id = productDb['id'];
+    super(productDb);
+
     this.alias = productDb['alias'];
     this.originalAlias = productDb['original_alias'];
     this.fullName = productDb['fullname'];

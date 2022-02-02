@@ -1,6 +1,9 @@
-export class ProductCpu {
+import { Entity } from './Entity';
+
+export class ProductCpu extends Entity {
   constructor(productCpuDb, cpu) {
-    this.id = productCpuDb['id'];
+    super(productCpuDb);
+
     this.bios = productCpuDb['bios'];
     this.sorder = productCpuDb['sorder'];
 

@@ -1,6 +1,9 @@
-export class Os {
+import { Entity } from './Entity';
+
+export class Os extends Entity {
   constructor(osDb) {
-    this.id = osDb['id'];
+    super(osDb);
+
     this.name = osDb['name'];
     this.alias = osDb['alias'];
     this.originalId = osDb['original_id'];

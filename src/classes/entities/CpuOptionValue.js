@@ -1,6 +1,9 @@
-export class CpuOptionValue {
+import { Entity } from './Entity';
+
+export class CpuOptionValue extends Entity {
   constructor(cpuOptionValue) {
-    this.id = cpuOptionValue['id'];
+    super(cpuOptionValue);
+
     this.cpuOptionId = cpuOptionValue['cpupart_id'];
     this.value = cpuOptionValue['name'];
     this.sorder = cpuOptionValue['sorder'];

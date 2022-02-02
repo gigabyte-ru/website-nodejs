@@ -1,6 +1,9 @@
-export class ProductImage {
+import { Entity } from './Entity';
+
+export class ProductImage extends Entity {
   constructor(imageDb) {
-    this.id = imageDb['id'];
+    super(imageDb);
+
     this.productId = imageDb['product_id'];
     this.extension = imageDb['extension'];
     this.path = imageDb['path'];

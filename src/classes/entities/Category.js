@@ -1,6 +1,9 @@
-export class Category {
+import { Entity } from './Entity';
+
+export class Category extends Entity {
   constructor(category) {
-    this.id = category['id'];
+    super(category);
+
     this.approved = category['approved_key'];
     this.parentId = category['parent_id'];
     this.name = category['name'];

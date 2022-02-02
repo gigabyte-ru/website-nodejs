@@ -1,6 +1,6 @@
 import { DB, getDataFromDb } from '../utils';
 import { Updated } from './Updated';
-import { File, FileGroup, FileType, Os, ProductFile } from './entities';
+import { File, FileGroup, FileType, Os, ProductFile, OsFile } from './entities';
 
 export class ProductFiles extends Updated {
   static dbName = 'u15821_products';
@@ -13,13 +13,31 @@ export class ProductFiles extends Updated {
     productFiles: 'product_files',
   };
 
+  /**
+   * @type { Map<number, Array<ProductFile>> }
+   */
   data = new Map();
 
+  /**
+   * @type { Map<number, File> }
+   */
   files = new Map();
+  /**
+   * @type { Map<number, FileGroup> }
+   */
   fileGroups = new Map();
+  /**
+   * @type { Map<number, FileType> }
+   */
   fileTypes = new Map();
+  /**
+   * @type { Map<number, Os> }
+   */
   os = new Map();
-  fileOS = new Map();
+  /**
+   * @type { Map<number, OsFile> }
+   */
+  osFiles = new Map();
 
   get(productId) {
     return this.data.get(productId);
@@ -73,10 +91,10 @@ export class ProductFiles extends Updated {
       const os = this.os.get(f['os_id']);
       const fileId = f['file_id'];
       if (os) {
-        if (this.fileOS.has(fileId)) {
-          this.fileOS.get(fileId).push(os);
+        if (this.osFiles.has(fileId)) {
+          this.osFiles.get(fileId).addOs(os);
         } else {
-          this.fileOS.set(fileId, [os]);
+          this.osFiles.set(fileId, new OsFile(f, os));
         }
       }
     });
@@ -91,12 +109,12 @@ export class ProductFiles extends Updated {
       const file = this.files.get(f['file_id']);
 
       if (file) {
-        const productFile = new ProductFile(
+        const productFile = new ProductFile(f, {
           file,
-          this.fileGroups,
-          this.fileTypes,
-          this.fileOS
-        );
+          fileGroups: this.fileGroups,
+          fileTypes: this.fileTypes,
+          osFiles: this.osFiles,
+        });
         if (this.data.has(productId)) {
           this.data.get(productId).push(productFile);
         } else {

@@ -1,73 +1,179 @@
-import { DB, getArrayFromObject, getTriggerQueries, TRIGGERS } from '../utils';
+import {
+  DB,
+  getArrayFromObject,
+  getDataFromDb,
+  getTriggerQueries,
+  TRIGGERS,
+} from '../utils';
+import { dbOperations } from '../constants';
+import { Translation } from './entities';
 
 export class Updated {
+  /**
+   * @abstract
+   * @type {string}
+   */
   static dbName = '';
-  static dbTables = [];
-  static dbOperations = {
-    Insert: 'insert',
-    Delete: 'delete',
-    Update: 'update',
-  };
 
   /**
-   * @typedef ChangeLogEntities
-   * @type {object}
-   * @property {Array<number>} insert - id's for insert
-   * @property {Array<number>} delete - id's for delete
-   * @property {Array<number>} update - id's for update
+   * @abstract
+   * @type { Object.<string, string> }
+   */
+  static dbTables = {};
+
+  /**
+   * @typedef TablesChangeLogs
+   * @type { Object.<string, Array<ChangeLog>> }
    */
 
   /**
-   * @type { Object.<string, ChangeLogEntities> }
+   * @type { TablesChangeLogs }
    */
-  changeLogs = {};
+  tablesChangeLogs = {};
 
   /**
-   *
+   * @abstract
+   * @param {any} entity
+   * @param { string | null } table
+   * @return this
+   */
+  updateEntity(entity, table = null) {
+    return this;
+  }
+
+  /**
+   * @abstract
+   * @param {any} entity
+   * @param { string | null } table
+   * @return this
+   */
+  insertEntity(entity, table = null) {
+    return this;
+  }
+
+  /**
+   * @abstract
+   * @param {any} entity
+   * @param { string | null } table
+   * @return this
+   */
+  deleteEntity(entity, table = null) {
+    return this;
+  }
+
+  /**
+   * @abstract
+   * @param {number} entityId
+   * @param { string | null } table
+   * @return this
+   */
+  deleteEntityById(entityId, table = null) {
+    return this;
+  }
+
+  /**
+   * @param { Array<ChangeLog> } changeLogs
+   * @return { Array<number> }
+   */
+  getInsertUpdateIds(changeLogs) {
+    return changeLogs.reduce((acc, changeLog) => {
+      if (
+        [dbOperations.Insert, dbOperations.Update].includes(changeLog.action)
+      ) {
+        acc.push(changeLog.primaryKey);
+      }
+      return acc;
+    }, []);
+  }
+
+  /**
    * @param { Array<ChangeLog> } changeLogs
    */
-  update(changeLogs = []) {
-    this.changeLogs = Object.keys(this.constructor.dbTables).reduce(
+  async update(changeLogs = []) {
+    this.tablesChangeLogs = Object.keys(this.constructor.dbTables).reduce(
       (tablesAcc, key) => {
         const dbTable = this.constructor.dbTables[key];
         const dbName = this.constructor.dbName;
-        console.log({ dbTable, dbName });
 
-        const filterChangeLogs = changeLogs.filter(
+        tablesAcc[key] = changeLogs.filter(
           (c) => c.dbName === dbName && c.dbTable === dbTable
-        );
-
-        console.log('filterChangeLogs: ', filterChangeLogs);
-
-        tablesAcc[key] = {
-          [Updated.dbOperations.Insert]: new Set(),
-          [Updated.dbOperations.Update]: new Set(),
-          [Updated.dbOperations.Delete]: new Set(),
-        };
-
-        for (const changeLog of filterChangeLogs) {
-          if (changeLog.action in tablesAcc[key]) {
-            tablesAcc[key][changeLog.action].add(changeLog.primaryKey);
-          }
-        }
-
-        console.log(`tablesAcc[${key}]: `, tablesAcc[key]);
-
-        tablesAcc[key][Updated.dbOperations.Insert] = Array.from(
-          tablesAcc[key][Updated.dbOperations.Insert]
-        );
-        tablesAcc[key][Updated.dbOperations.Update] = Array.from(
-          tablesAcc[key][Updated.dbOperations.Update]
-        );
-        tablesAcc[key][Updated.dbOperations.Delete] = Array.from(
-          tablesAcc[key][Updated.dbOperations.Delete]
         );
 
         return tablesAcc;
       },
       {}
     );
-    console.log(this.changeLogs);
+    console.log(this.tablesChangeLogs);
+
+    return this;
+  }
+
+  /**
+   * @param { DbDataOptions } dbOptions
+   * @param { Class<Entity> } className
+   * @return { Promise<Map<number, Object>> }
+   */
+  async getEntitiesFromDb(dbOptions, className) {
+    const entitiesDb = await getDataFromDb(dbOptions);
+
+    const retMap = new Map();
+
+    for (const entityDb of entitiesDb) {
+      const newClass = new className(entityDb);
+
+      retMap.add(newClass.id, newClass);
+    }
+
+    return retMap;
+  }
+
+  /**
+   * @typedef UpdateDbTableOptions
+   * @type Object
+   * @property { string } dbName
+   * @property { string } table
+   */
+
+  /**
+   * @param { UpdateDbTableOptions } options
+   */
+  async updateDbTableEntities({ dbName, table }) {
+    const changeLogs = this.tablesChangeLogs[table];
+
+    if (!changeLogs?.length) {
+      return this;
+    }
+
+    /**
+     * @type { Map<number, Translation> }
+     */
+    const updatedEntities = await this.getEntitiesFromDb(
+      {
+        query: `SELECT * FROM \`${table}\` WHERE \`id\` IN (?)`,
+        prepareParams: this.getInsertUpdateIds(changeLogs),
+        dbName,
+      },
+      Translation
+    );
+
+    for (const changeLog of changeLogs) {
+      const { action, primaryKey: entityId } = changeLog;
+      switch (action) {
+        case dbOperations.Insert:
+          if (updatedEntities.has(entityId)) {
+            this.insertEntity(updatedEntities.get(entityId), table);
+          }
+          break;
+        case dbOperations.Update:
+          if (updatedEntities.has(entityId)) {
+            this.updateEntity(updatedEntities.get(entityId), table);
+          }
+          break;
+        case dbOperations.Delete:
+          this.deleteEntityById(entityId, table);
+          break;
+      }
+    }
 
     return this;
   }

@@ -1,8 +1,10 @@
 import { globalVariables } from '../GlobalVariables.js';
+import { Entity } from './Entity';
 
-export class Socket {
+export class Socket extends Entity {
   constructor(socketDb) {
-    this.id = socketDb['id'];
+    super(socketDb);
+
     this.isApproved = socketDb['approved_key'];
     this.name = socketDb['name'];
     this.alias = socketDb['alias'];

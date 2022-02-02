@@ -15,3 +15,4 @@ export * from './ProductFile';
 export * from './ProductImage';
 export * from './Socket';
 export * from './Translation';
+export * from './OsFile';

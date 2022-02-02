@@ -1,6 +1,9 @@
-export class Country {
+import { Entity } from './Entity';
+
+export class Country extends Entity {
   constructor(country) {
-    this.id = country['id'];
+    super(country);
+
     this.langId = country['lang_id'];
     this.name = country['name'];
     this.link = country['link'];

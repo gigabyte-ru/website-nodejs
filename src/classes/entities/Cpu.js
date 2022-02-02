@@ -1,17 +1,14 @@
-import { globalVariables } from '../GlobalVariables.js';
+import { Entity } from './Entity';
 
-export class Cpu {
+export class Cpu extends Entity {
   optionValue = [];
 
   constructor(cpuDb) {
-    this.id = cpuDb['id'];
+    super(cpuDb);
+
     this.name = cpuDb['name'];
     this.markId = cpuDb['markId'];
     this.socketId = cpuDb['socketId'];
-  }
-
-  getSocket() {
-    this.socket = globalVariables.variables.sockets.get(this.socketId);
   }
 
   setOptionValue(option, value) {
