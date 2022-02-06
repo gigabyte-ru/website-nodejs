@@ -1,3 +1,4 @@
+export * from './Article';
 export * from './Category';
 export * from './Country';
 export * from './Cpu';
@@ -16,3 +17,4 @@ export * from './ProductImage';
 export * from './Socket';
 export * from './Translation';
 export * from './OsFile';
+export * from './ChangeLog';

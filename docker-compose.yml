@@ -1,0 +1,10 @@
+version: '3.1'
+
+services:
+  redis:
+    image: redislabs/rejson:latest
+    container_name: redisjson
+    restart: always
+    command: redis-server --loadmodule /usr/lib/redis/modules/rejson.so --loadmodule /usr/lib/redis/modules/redisearch.so --requirepass Yor_Som_1562_Hndf
+    ports:
+      - "6379:6379"

@@ -1,19 +1,19 @@
-'use strict';
+import http from 'http';
+import { processRoute } from './utils';
+import dotenv from 'dotenv';
 
-import { Worker, workerData, isMainThread } from 'worker_threads';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-import { GlobalVariablesParser } from './classes';
+dotenv.config();
+const HTTP_PORT = process.env.SERVER_HTTP_PORT;
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const globalVariablesParser = new GlobalVariablesParser();
-
-await globalVariablesParser.init();
-
-new Worker(`${__dirname}/worker.js`, {
-  workerData: globalVariablesParser.classes,
-});
-
-globalVariablesParser.runUpdate();
+http
+  .createServer(async (req, res) => {
+    await processRoute(req, res);
+  })
+  .listen(HTTP_PORT, () => {
+    console.log(`HTTP-server running at http://localhost:${HTTP_PORT}/`);
+  })
+  .on('error', (err) => {
+    if (err.code === 'EACCES') {
+      console.log(`No access to port: ${HTTP_PORT}`);
+    }
+  });

@@ -1,9 +1,26 @@
 import { Entity } from './Entity';
 
 export class Lang extends Entity {
-  constructor(lang) {
-    super(lang);
+  /**
+   * @typedef LangEntity
+   * @type { Object }
+   * @property { number } id
+   * @property { string } alias
+   */
 
-    this.alias = lang['alias'];
+  /**
+   * @type { LangEntity }
+   */
+  data = {};
+
+  /**
+   * @return { Lang }
+   */
+  setDataFromDb(entityFromDb) {
+    super.setDataFromDb(entityFromDb);
+
+    this.data.alias = entityFromDb['alias'];
+
+    return this;
   }
 }

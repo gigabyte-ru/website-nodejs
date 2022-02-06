@@ -1,48 +1,90 @@
 import dotenv from 'dotenv';
 
-import { getDataFromDb } from '../utils';
-import { Langs } from './Langs';
-import { Hosts } from './Hosts';
-import { Translations } from './Translations';
-import { Categories } from './Categories';
-import { Products } from './Products';
-import { Countries } from './Countries';
-import { ProductImages } from './ProductImages';
-import { ProductFiles } from './ProductFiles';
-import { Sockets } from './Sockets';
-import { ProductCpus } from './ProductCpus';
-import { ChangeLog } from './entities/ChangeLog';
+import { getDataFromDb, redis } from '../utils';
+import { Articles, Categories, Countries, Langs } from './lists';
+import { ChangeLog } from './entities';
 
 dotenv.config();
 
 export class GlobalVariablesParser {
-  updatedAt = null;
+  static UPDATED_AT = 'updated_at';
 
   static SRC_PATH = `${process.env.INSTALLED_PATH}src`;
-  static dbLogsName = 'u15824_logs';
-  static dbTablesLogsName = 'db_change_log';
+  static dbName = 'u15824_logs';
+  static dbTable = 'db_change_log';
 
+  /**
+   * @typedef GlobalClasses
+   * @type { Object }
+   * @property { Langs } langs
+   * @property { Categories } categories
+   * @property { Countries } countries
+   * @property { Articles } aliases
+   */
+
+  /**
+   * @type { GlobalClasses }
+   */
   classes = {};
 
+  runUpdate() {
+    setInterval(() => {
+      this.runUpdateProcess().then();
+    }, 1000 * 10);
+
+    return this;
+  }
+
+  lib() {
+    return redis.lib(
+      `${GlobalVariablesParser.dbName}:${GlobalVariablesParser.dbTable}`
+    );
+  }
+
+  /**
+   * @param { string } updatedAt
+   */
+  async setUpdatedAt(updatedAt) {
+    await this.lib().add(GlobalVariablesParser.UPDATED_AT, updatedAt);
+
+    return this;
+  }
+
+  /**
+   * @return {Promise<string>}
+   */
+  async getUpdatedAt(updatedAt) {
+    return await this.lib().get(GlobalVariablesParser.UPDATED_AT);
+  }
+
   async updateLastTimestamp() {
-    this.updatedAt =
+    const updatedAt =
       (
         await getDataFromDb({
-          query: `SELECT \`updatedAt\` FROM \`${GlobalVariablesParser.dbTablesLogsName}\` ORDER BY \`id\` DESC LIMIT 1`,
-          dbName: GlobalVariablesParser.dbLogsName,
+          query: `SELECT \`updatedAt\` FROM \`${GlobalVariablesParser.dbTable}\` ORDER BY \`id\` DESC LIMIT 1`,
+          dbName: GlobalVariablesParser.dbName,
         })
       )?.[0]?.['updatedAt'] ?? null;
+
+    await this.setUpdatedAt(updatedAt);
+
+    return this;
   }
 
   async init() {
+    await redis.clear();
+
     await this.updateLastTimestamp();
-    this.classes.langs = (await new Langs().fill()).log();
+    this.classes.langs = await new Langs().fill();
+    this.classes.categories = await new Categories().fill();
+    this.classes.countries = await new Countries().fill();
+    this.classes.aliases = await new Articles().fill();
+
     // this.classes.hosts = (await new Hosts().fill()).log();
     // this.classes.countries = (await new Countries().fill()).log();
     // this.classes.translations = (
     //   await new Translations(this.variables.langs).fill()
     // ).log();
-    // this.classes.categories = (await new Categories().fill()).log();
     // this.classes.sockets = (await new Sockets().fill()).log();
     // this.classes.products = (
     //   await new Products(this.variables.categories).fill()
@@ -54,18 +96,7 @@ export class GlobalVariablesParser {
     return this;
   }
 
-  runUpdate() {
-    setInterval(() => {
-      this.runUpdateProcess().then();
-    }, 1000 * 10);
-
-    return this;
-  }
-
   async runUpdateProcess() {
-    this.classes.langs.get(1).alias = 'asdsadad';
-    console.log({ workerEn: this.classes.langs.get(1) });
-
     const updatedAt = this.updatedAt;
 
     this.updateLastTimestamp().then();
@@ -92,11 +123,11 @@ export class GlobalVariablesParser {
     console.log('UpdatedAt: ', updatedAt);
 
     const changeLogs = await getDataFromDb({
-      query: `SELECT * FROM \`${GlobalVariablesParser.dbTablesLogsName}\` WHERE \`updatedAt\` > ? ORDER BY \`updatedAt\` ASC`,
+      query: `SELECT * FROM \`${GlobalVariablesParser.dbTable}\` WHERE \`updatedAt\` > ? ORDER BY \`updatedAt\` ASC`,
       prepareParams: [updatedAt],
-      dbName: GlobalVariablesParser.dbLogsName,
+      dbName: GlobalVariablesParser.dbName,
     });
 
-    return changeLogs.map((c) => new ChangeLog(c));
+    return changeLogs.map((c) => new ChangeLog().setDataFromDb(c));
   }
 }

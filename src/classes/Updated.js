@@ -3,12 +3,17 @@ import {
   getArrayFromObject,
   getDataFromDb,
   getTriggerQueries,
+  redis,
   TRIGGERS,
 } from '../utils';
 import { dbOperations } from '../constants';
-import { Translation } from './entities';
+import { Lang, Translation } from './entities';
+import { Entity } from './entities/Entity';
+import { SchemaFieldTypes } from 'redis';
 
 export class Updated {
+  static MAX_UPLOADED_ENTITIES = 1000;
+
   /**
    * @abstract
    * @type {string}
@@ -17,57 +22,93 @@ export class Updated {
 
   /**
    * @abstract
-   * @type { Object.<string, string> }
+   * @type { string }
    */
-  static dbTables = {};
-
-  /**
-   * @typedef TablesChangeLogs
-   * @type { Object.<string, Array<ChangeLog>> }
-   */
-
-  /**
-   * @type { TablesChangeLogs }
-   */
-  tablesChangeLogs = {};
+  static dbTable = '';
 
   /**
    * @abstract
-   * @param {any} entity
-   * @param { string | null } table
-   * @return this
+   * @type { Class<Entity> }
    */
-  updateEntity(entity, table = null) {
+  static className = Entity;
+
+  /**
+   * @typedef RedisIndexObject
+   * @type Object
+   * @property { SchemaFieldTypes } type
+   * @property { string } AS
+   */
+
+  /**
+   * @abstract
+   * @type { Object.<string, RedisIndexObject> }
+   */
+  static redisSearchIndexes = {};
+
+  libKey = `${this.constructor.dbName}:${this.constructor.dbTable}`;
+
+  indexLibKey = `idx:${this.constructor.dbName}:${this.constructor.dbTable}`;
+
+  lib() {
+    return redis.lib(this.libKey);
+  }
+
+  selectQuery() {
+    return `SELECT * FROM \`${this.constructor.dbTable}\``;
+  }
+
+  /**
+   * @param { number } entityId
+   * @return { Promise< Entity | null > }
+   */
+  async get(entityId) {
+    const memoryEntity = await this.lib().get(entityId);
+
+    if (memoryEntity) {
+      return new this.constructor.className().setData(memoryEntity);
+    }
+
+    return null;
+  }
+
+  /**
+   * @param { Entity } entity
+   */
+  async insertEntity(entity) {
+    await this.lib().add(entity.data.id, entity.data);
+
     return this;
   }
 
   /**
-   * @abstract
-   * @param {any} entity
-   * @param { string | null } table
-   * @return this
+   * @param { Array<Entity> } entities
    */
-  insertEntity(entity, table = null) {
+  async insertEntities(entities) {
+    await this.lib().multiAdd(
+      entities.map((e) => ({ key: e.data.id, value: e.data }))
+    );
+
     return this;
   }
 
   /**
-   * @abstract
-   * @param {any} entity
-   * @param { string | null } table
-   * @return this
+   * @param { number } entityId
+   * @param table { string | null }
+   * @param table
    */
-  deleteEntity(entity, table = null) {
+  async deleteEntity(entityId, table = null) {
+    await this.lib().delete(entityId);
+
     return this;
   }
 
   /**
-   * @abstract
-   * @param {number} entityId
-   * @param { string | null } table
-   * @return this
+   * @param { Entity } entity
+   * @param table
    */
-  deleteEntityById(entityId, table = null) {
+  async updateEntity(entity, table = null) {
+    await this.lib().add(entity.data.id, entity.data);
+
     return this;
   }
 
@@ -87,23 +128,102 @@ export class Updated {
   }
 
   /**
-   * @param { Array<ChangeLog> } changeLogs
+   * @param { Array<ChangeLog> } allChangeLogs
    */
-  async update(changeLogs = []) {
-    this.tablesChangeLogs = Object.keys(this.constructor.dbTables).reduce(
-      (tablesAcc, key) => {
-        const dbTable = this.constructor.dbTables[key];
-        const dbName = this.constructor.dbName;
+  async update(allChangeLogs = []) {
+    const dbTable = this.constructor.dbTable;
+    const dbName = this.constructor.dbName;
 
-        tablesAcc[key] = changeLogs.filter(
-          (c) => c.dbName === dbName && c.dbTable === dbTable
-        );
-
-        return tablesAcc;
-      },
-      {}
+    const changeLogs = allChangeLogs.filter(
+      (c) => c.dbTable === dbTable && c.dbName === dbName
     );
-    console.log(this.tablesChangeLogs);
+
+    if (!changeLogs?.length) {
+      return this;
+    }
+
+    /**
+     * @type { Map<number, Translation> }
+     */
+    const updatedEntities = await this.getEntitiesFromDb(
+      {
+        query: `SELECT * FROM \`${dbTable}\` WHERE \`id\` IN (?)`,
+        prepareParams: this.getInsertUpdateIds(changeLogs),
+        dbName,
+      },
+      this.constructor.className
+    );
+
+    for await (const changeLog of changeLogs) {
+      const { action, primaryKey: entityId } = changeLog;
+      switch (action) {
+        case dbOperations.Insert:
+          if (updatedEntities.has(entityId)) {
+            await this.insertEntity(updatedEntities.get(entityId));
+          }
+          break;
+        case dbOperations.Update:
+          if (updatedEntities.has(entityId)) {
+            await this.updateEntity(updatedEntities.get(entityId));
+          }
+          break;
+        case dbOperations.Delete:
+          await this.deleteEntity(entityId);
+          break;
+      }
+    }
+
+    return this;
+  }
+
+  async createIndexes() {
+    const redisSearchIndexes = this.constructor.redisSearchIndexes;
+
+    if (Object.keys(redisSearchIndexes).length) {
+      await this.lib().createIndexes(this.indexLibKey, redisSearchIndexes);
+    }
+
+    return this;
+  }
+
+  async fill(db = null) {
+    await this.createIndexes();
+
+    const entitiesFromDb = await getDataFromDb({
+      query: this.selectQuery(),
+      dbName: this.constructor.dbName,
+      db,
+    });
+
+    const totalCount = entitiesFromDb.length;
+    console.log(`\n${this.constructor.name}: ${totalCount}`);
+    let loaded = 0;
+
+    const entities = entitiesFromDb.map((e) =>
+      new this.constructor.className().setDataFromDb(e)
+    );
+
+    let dynamicEntities = [];
+    do {
+      dynamicEntities.push(entities.shift());
+      if (
+        dynamicEntities.length === Updated.MAX_UPLOADED_ENTITIES ||
+        !entities.length
+      ) {
+        await this.insertEntities(dynamicEntities);
+        loaded += dynamicEntities.length;
+        process.stdout.write(
+          `\rЗагружено: ${Math.round((loaded / totalCount) * 100)}%`
+        );
+        dynamicEntities = [];
+      }
+    } while (entities.length);
+
+    // for (const entityFromDb of entitiesFromDb) {
+    //   await this.insertEntity(
+    //     new this.constructor.className().setDataFromDb(entityFromDb)
+    //   );
+    // }
 
     return this;
   }
@@ -119,63 +239,12 @@ export class Updated {
     const retMap = new Map();
 
     for (const entityDb of entitiesDb) {
-      const newClass = new className(entityDb);
+      const newClass = new className().setDataFromDb(entityDb);
 
-      retMap.add(newClass.id, newClass);
+      retMap.add(newClass.data.id, newClass);
     }
 
     return retMap;
-  }
-
-  /**
-   * @typedef UpdateDbTableOptions
-   * @type Object
-   * @property { string } dbName
-   * @property { string } table
-   */
-
-  /**
-   * @param { UpdateDbTableOptions } options
-   */
-  async updateDbTableEntities({ dbName, table }) {
-    const changeLogs = this.tablesChangeLogs[table];
-
-    if (!changeLogs?.length) {
-      return this;
-    }
-
-    /**
-     * @type { Map<number, Translation> }
-     */
-    const updatedEntities = await this.getEntitiesFromDb(
-      {
-        query: `SELECT * FROM \`${table}\` WHERE \`id\` IN (?)`,
-        prepareParams: this.getInsertUpdateIds(changeLogs),
-        dbName,
-      },
-      Translation
-    );
-
-    for (const changeLog of changeLogs) {
-      const { action, primaryKey: entityId } = changeLog;
-      switch (action) {
-        case dbOperations.Insert:
-          if (updatedEntities.has(entityId)) {
-            this.insertEntity(updatedEntities.get(entityId), table);
-          }
-          break;
-        case dbOperations.Update:
-          if (updatedEntities.has(entityId)) {
-            this.updateEntity(updatedEntities.get(entityId), table);
-          }
-          break;
-        case dbOperations.Delete:
-          this.deleteEntityById(entityId, table);
-          break;
-      }
-    }
-
-    return this;
   }
 
   async createTriggers(db = null) {

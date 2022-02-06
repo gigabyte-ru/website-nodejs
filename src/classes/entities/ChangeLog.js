@@ -1,13 +1,32 @@
 import { Entity } from './Entity';
 
 export class ChangeLog extends Entity {
-  constructor(changeLogDb) {
-    super(changeLogDb);
+  /**
+   * @typedef ChangeLogEntity
+   * @type { Object }
+   * @property { number } id
+   * @property { 'insert' | 'update' | 'delete' } action
+   * @property { string } dbName
+   * @property { string } dbTable
+   * @property { number } primaryKey
+   * @property { Date } updatedAt
+   */
 
-    this.action = changeLogDb['action'];
-    this.dbName = changeLogDb['db'];
-    this.dbTable = changeLogDb['db_table'];
-    this.primaryKey = changeLogDb['primary_key'];
-    this.updatedAt = new Date(changeLogDb['updatedAt']);
+  /**
+   * @type { ChangeLogEntity }
+   */
+  data = {};
+
+  /**
+   * @return { ChangeLog }
+   */
+  setDataFromDb(entityFromDb) {
+    super.setDataFromDb(entityFromDb);
+
+    this.action = entityFromDb['action'];
+    this.dbName = entityFromDb['db'];
+    this.dbTable = entityFromDb['db_table'];
+    this.primaryKey = entityFromDb['primary_key'];
+    this.updatedAt = new Date(entityFromDb['updatedAt']);
   }
 }

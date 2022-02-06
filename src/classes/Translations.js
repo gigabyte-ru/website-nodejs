@@ -1,5 +1,5 @@
 import { Updated } from './Updated';
-import { Langs } from './Langs';
+import { Langs } from './lists/Langs';
 import { Translation } from './entities';
 import { getDataFromDb } from '../utils';
 

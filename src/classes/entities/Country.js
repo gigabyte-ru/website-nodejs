@@ -1,12 +1,27 @@
 import { Entity } from './Entity';
 
 export class Country extends Entity {
-  constructor(country) {
-    super(country);
+  /**
+   * @typedef CountryEntity
+   * @type { Object }
+   * @property { number } id
+   * @property { number } langId
+   * @property { string } name
+   * @property { string } link
+   * @property { string } redirectLink
+   */
 
-    this.langId = country['lang_id'];
-    this.name = country['name'];
-    this.link = country['link'];
-    this.redirectLink = country['link_redirect'];
+  /**
+   * @return { Country }
+   */
+  setDataFromDb(entityFromDb) {
+    super.setDataFromDb(entityFromDb);
+
+    this.data.langId = entityFromDb['lang_id'];
+    this.data.name = entityFromDb['name'];
+    this.data.link = entityFromDb['link'];
+    this.data.redirectLink = entityFromDb['link_redirect'];
+
+    return this;
   }
 }

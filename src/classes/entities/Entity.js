@@ -2,7 +2,22 @@
  * @constructor
  */
 export class Entity {
-  constructor(entityFromDb) {
-    this.id = entityFromDb['id'];
+  data = {};
+
+  /**
+   * @abstract
+   * @param entityFromDb
+   * @return {Entity}
+   */
+  setDataFromDb(entityFromDb) {
+    this.data.id = entityFromDb.id;
+
+    return this;
+  }
+
+  setData(data) {
+    this.data = data;
+
+    return this;
   }
 }

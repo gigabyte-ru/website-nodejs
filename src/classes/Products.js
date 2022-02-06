@@ -1,5 +1,5 @@
 import { Updated } from './Updated';
-import { Categories } from './Categories';
+import { Categories } from './lists/Categories';
 import { Product } from './entities';
 import { getDataFromDb } from '../utils';
 
