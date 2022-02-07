@@ -1,23 +1,40 @@
 import { Updated } from '../Updated';
 import { Article } from '../entities';
-import { SchemaFieldTypes } from 'redis';
+import { FieldTypes } from '../../constants';
 
 export class Articles extends Updated {
   static dbName = 'u15821_global';
   static dbTable = 'articles';
-  static className = Article;
-  static redisSearchIndexes = {
-    '$.langId': {
-      AS: 'lang_id',
-      type: SchemaFieldTypes.NUMERIC,
+  static entityName = Article;
+
+  /**
+   * @type { Object.<string, SearchIndex>  }
+   */
+  static searchIndexes = {
+    langId: {
+      type: FieldTypes.NUMBER,
     },
-    '$.articleId': {
-      AS: 'article_id',
-      type: SchemaFieldTypes.NUMERIC,
+    articleId: {
+      type: FieldTypes.NUMBER,
     },
-    '$.alias': {
-      AS: 'alias',
-      type: SchemaFieldTypes.TEXT,
+    alias: {
+      type: FieldTypes.STRING,
     },
   };
+
+  /**
+   * @param { number } langId
+   * @param { number | string } articleOrAlias
+   */
+  async getTranslation(langId, articleOrAlias) {
+    let searchText = `@langId:[${langId} ${langId}]`;
+
+    if (Number.isInteger(articleOrAlias)) {
+      searchText += ` (@articleId:[${articleOrAlias} ${articleOrAlias}] | @alias:${articleOrAlias})`;
+    } else {
+      searchText += ` @alias:${articleOrAlias}`;
+    }
+
+    return await this.lib.search(searchText);
+  }
 }

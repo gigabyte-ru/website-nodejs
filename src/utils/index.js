@@ -9,3 +9,4 @@ export * from './parseTemplateVariables';
 export * from './getArrayFromObject';
 export * from './createTriggers';
 export * from './getDataFromDb';
+export * from './redisIndexesMapper';

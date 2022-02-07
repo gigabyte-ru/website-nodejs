@@ -1,7 +1,14 @@
 import dotenv from 'dotenv';
 
 import { getDataFromDb, redis } from '../utils';
-import { Articles, Categories, Countries, Langs } from './lists';
+import {
+  Articles,
+  Categories,
+  Countries,
+  Langs,
+  Hosts,
+  Sockets,
+} from './lists';
 import { ChangeLog } from './entities';
 
 dotenv.config();
@@ -20,6 +27,8 @@ export class GlobalVariablesParser {
    * @property { Categories } categories
    * @property { Countries } countries
    * @property { Articles } aliases
+   * @property { Hosts } hosts
+   * @property { Sockets } sockets
    */
 
   /**
@@ -74,18 +83,18 @@ export class GlobalVariablesParser {
   async init() {
     await redis.clear();
 
-    await this.updateLastTimestamp();
-    this.classes.langs = await new Langs().fill();
-    this.classes.categories = await new Categories().fill();
-    this.classes.countries = await new Countries().fill();
-    this.classes.aliases = await new Articles().fill();
+    // await this.updateLastTimestamp();
+    // this.classes.langs = await (await new Langs().createIndexes()).fill();
+    // this.classes.categories = await (
+    //   await new Categories().createIndexes()
+    // ).fill();
+    // this.classes.countries = await (
+    //   await new Countries().createIndexes()
+    // ).fill();
+    // this.classes.hosts = await (await new Hosts().createIndexes()).fill();
+    // this.classes.sockets = await (await new Sockets().createIndexes()).fill();
+    // this.classes.aliases = await (await new Articles().createIndexes()).fill();
 
-    // this.classes.hosts = (await new Hosts().fill()).log();
-    // this.classes.countries = (await new Countries().fill()).log();
-    // this.classes.translations = (
-    //   await new Translations(this.variables.langs).fill()
-    // ).log();
-    // this.classes.sockets = (await new Sockets().fill()).log();
     // this.classes.products = (
     //   await new Products(this.variables.categories).fill()
     // ).log();

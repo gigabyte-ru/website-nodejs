@@ -7,9 +7,9 @@ import {
   TRIGGERS,
 } from '../utils';
 import { dbOperations } from '../constants';
-import { Lang, Translation } from './entities';
 import { Entity } from './entities/Entity';
 import { SchemaFieldTypes } from 'redis';
+import { redisIndexesMapper } from '../utils';
 
 export class Updated {
   static MAX_UPLOADED_ENTITIES = 1000;
@@ -30,7 +30,18 @@ export class Updated {
    * @abstract
    * @type { Class<Entity> }
    */
-  static className = Entity;
+  static entityName = Entity;
+
+  /**
+   * @typedef SearchIndex
+   * @type Object
+   * @property { FieldTypes } type
+   */
+
+  /**
+   * @type { Object.<string, SearchIndex>  }
+   */
+  static searchIndexes = {};
 
   /**
    * @typedef RedisIndexObject
@@ -39,18 +50,9 @@ export class Updated {
    * @property { string } AS
    */
 
-  /**
-   * @abstract
-   * @type { Object.<string, RedisIndexObject> }
-   */
-  static redisSearchIndexes = {};
-
-  libKey = `${this.constructor.dbName}:${this.constructor.dbTable}`;
-
-  indexLibKey = `idx:${this.constructor.dbName}:${this.constructor.dbTable}`;
-
-  lib() {
-    return redis.lib(this.libKey);
+  constructor() {
+    this.libKey = `${this.constructor.dbName}:${this.constructor.dbTable}`;
+    this.lib = redis.lib(this.libKey);
   }
 
   selectQuery() {
@@ -62,10 +64,10 @@ export class Updated {
    * @return { Promise< Entity | null > }
    */
   async get(entityId) {
-    const memoryEntity = await this.lib().get(entityId);
+    const memoryEntity = await this.lib.get(entityId);
 
     if (memoryEntity) {
-      return new this.constructor.className().setData(memoryEntity);
+      return new this.constructor.entityName().setData(memoryEntity);
     }
 
     return null;
@@ -75,7 +77,7 @@ export class Updated {
    * @param { Entity } entity
    */
   async insertEntity(entity) {
-    await this.lib().add(entity.data.id, entity.data);
+    await this.lib.add(entity.data.id, entity.data);
 
     return this;
   }
@@ -84,7 +86,7 @@ export class Updated {
    * @param { Array<Entity> } entities
    */
   async insertEntities(entities) {
-    await this.lib().multiAdd(
+    await this.lib.multiAdd(
       entities.map((e) => ({ key: e.data.id, value: e.data }))
     );
 
@@ -97,7 +99,7 @@ export class Updated {
    * @param table
    */
   async deleteEntity(entityId, table = null) {
-    await this.lib().delete(entityId);
+    await this.lib.delete(entityId);
 
     return this;
   }
@@ -107,7 +109,7 @@ export class Updated {
    * @param table
    */
   async updateEntity(entity, table = null) {
-    await this.lib().add(entity.data.id, entity.data);
+    await this.lib.add(entity.data.id, entity.data);
 
     return this;
   }
@@ -143,7 +145,7 @@ export class Updated {
     }
 
     /**
-     * @type { Map<number, Translation> }
+     * @type { Map<number, Entity> }
      */
     const updatedEntities = await this.getEntitiesFromDb(
       {
@@ -151,7 +153,7 @@ export class Updated {
         prepareParams: this.getInsertUpdateIds(changeLogs),
         dbName,
       },
-      this.constructor.className
+      this.constructor.entityName
     );
 
     for await (const changeLog of changeLogs) {
@@ -177,18 +179,16 @@ export class Updated {
   }
 
   async createIndexes() {
-    const redisSearchIndexes = this.constructor.redisSearchIndexes;
+    const searchIndexes = this.constructor.searchIndexes;
 
-    if (Object.keys(redisSearchIndexes).length) {
-      await this.lib().createIndexes(this.indexLibKey, redisSearchIndexes);
+    if (Object.keys(searchIndexes).length) {
+      await this.lib.createIndexes(redisIndexesMapper(searchIndexes));
     }
 
     return this;
   }
 
   async fill(db = null) {
-    await this.createIndexes();
-
     const entitiesFromDb = await getDataFromDb({
       query: this.selectQuery(),
       dbName: this.constructor.dbName,
@@ -196,11 +196,11 @@ export class Updated {
     });
 
     const totalCount = entitiesFromDb.length;
-    console.log(`\n${this.constructor.name}: ${totalCount}`);
+    console.log(`${this.constructor.name}: ${totalCount}`);
     let loaded = 0;
 
     const entities = entitiesFromDb.map((e) =>
-      new this.constructor.className().setDataFromDb(e)
+      new this.constructor.entityName().setDataFromDb(e)
     );
 
     let dynamicEntities = [];
@@ -213,17 +213,12 @@ export class Updated {
         await this.insertEntities(dynamicEntities);
         loaded += dynamicEntities.length;
         process.stdout.write(
-          `\rЗагружено: ${Math.round((loaded / totalCount) * 100)}%`
+          `\rUploaded: ${Math.round((loaded / totalCount) * 100)}%`
         );
         dynamicEntities = [];
       }
     } while (entities.length);
-
-    // for (const entityFromDb of entitiesFromDb) {
-    //   await this.insertEntity(
-    //     new this.constructor.className().setDataFromDb(entityFromDb)
-    //   );
-    // }
+    process.stdout.write('\n\n');
 
     return this;
   }

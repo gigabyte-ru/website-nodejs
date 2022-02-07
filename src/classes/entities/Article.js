@@ -1,5 +1,4 @@
 import { Entity } from './Entity';
-import { SchemaFieldTypes } from 'redis';
 
 export class Article extends Entity {
   /**

@@ -1,17 +1,18 @@
 import { Updated } from '../Updated';
-import { Lang } from '../entities';
+import { SchemaFieldTypes } from 'redis';
 import { FieldTypes } from '../../constants';
+import { Host } from '../entities';
 
-export class Langs extends Updated {
+export class Hosts extends Updated {
   static dbName = 'u15821_global';
-  static dbTable = 'langs';
-  static entityName = Lang;
+  static dbTable = 'domains';
+  static entityName = Host;
   /**
    * @type { Object.<string, SearchIndex>  }
    */
   static searchIndexes = {
-    alias: {
-      type: FieldTypes.STRING,
+    name: {
+      type: FieldTypes.NUMBER,
     },
   };
 }

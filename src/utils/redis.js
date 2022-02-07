@@ -40,17 +40,18 @@ const Redis = async function () {
      */
     const getFullKey = (key) => `${libKey}:${key}`;
 
+    const searchKey = `idx:${libKey}`;
+
     return {
       /**
-       * @param indexLibKey
        * @param indexesObject
        * @return { Promise<this> }
        */
-      async createIndexes(indexLibKey, indexesObject) {
-        console.log(`Create index ${indexLibKey} for ${libKey}`, indexesObject);
+      async createIndexes(indexesObject) {
+        console.log(`Create index ${searchKey} for ${libKey}`, indexesObject);
 
         try {
-          await client.ft.create(indexLibKey, indexesObject, {
+          await client.ft.create(searchKey, indexesObject, {
             ON: 'JSON',
             PREFIX: libKey,
           });
@@ -66,11 +67,10 @@ const Redis = async function () {
       },
 
       /**
-       * @param { string } searchKey
        * @param { string } searchText
        * @return {Promise<Array<Entity.data>>}
        */
-      async search(searchKey, searchText) {
+      async search(searchText) {
         try {
           const searchData = await client.ft.search(searchKey, searchText);
 

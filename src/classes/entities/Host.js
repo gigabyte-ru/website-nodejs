@@ -1,13 +1,34 @@
 import { Entity } from './Entity';
 
 export class Host extends Entity {
-  constructor(domain) {
-    super(domain);
+  /**
+   * @typedef HostEntity
+   * @type { Object }
+   * @property { number } id
+   * @property { number } firstLangId
+   * @property { number } secondLangId
+   * @property { number } defaultLangId
+   * @property { string } name
+   * @property { number } countryId
+   */
 
-    this.firstLangId = domain['lang_id'];
-    this.secondLangId = domain['vicarial_lang_id'];
-    this.defaultLangId = domain['default_lang_id'];
-    this.name = domain['name'];
-    this.countryId = domain['country_id'];
+  /**
+   * @type { HostEntity }
+   */
+  data = {};
+
+  /**
+   * @return { Host }
+   */
+  setDataFromDb(entityFromDb) {
+    super.setDataFromDb(entityFromDb);
+
+    this.data.firstLangId = entityFromDb['lang_id'];
+    this.data.secondLangId = entityFromDb['vicarial_lang_id'];
+    this.data.defaultLangId = entityFromDb['default_lang_id'];
+    this.data.name = entityFromDb['name'];
+    this.data.countryId = entityFromDb['country_id'];
+
+    return this;
   }
 }
