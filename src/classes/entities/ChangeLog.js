@@ -9,7 +9,7 @@ export class ChangeLog extends Entity {
    * @property { string } dbName
    * @property { string } dbTable
    * @property { number } primaryKey
-   * @property { Date } updatedAt
+   * @property { string } updatedAt
    */
 
   /**
@@ -27,6 +27,6 @@ export class ChangeLog extends Entity {
     this.dbName = entityFromDb['db'];
     this.dbTable = entityFromDb['db_table'];
     this.primaryKey = entityFromDb['primary_key'];
-    this.updatedAt = new Date(entityFromDb['updatedAt']);
+    this.updatedAt = entityFromDb['updatedAt'];
   }
 }

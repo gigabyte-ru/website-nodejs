@@ -14,7 +14,7 @@ import { ChangeLog } from './entities';
 dotenv.config();
 
 export class GlobalVariablesParser {
-  static UPDATED_AT = 'updated_at';
+  static UPDATED_AT = 'updatedAt';
 
   static SRC_PATH = `${process.env.INSTALLED_PATH}src`;
   static dbName = 'u15824_logs';
@@ -23,18 +23,29 @@ export class GlobalVariablesParser {
   /**
    * @typedef GlobalClasses
    * @type { Object }
-   * @property { Langs } langs
+   * @property { Articles } articles
    * @property { Categories } categories
    * @property { Countries } countries
-   * @property { Articles } aliases
    * @property { Hosts } hosts
+   * @property { Langs } langs
    * @property { Sockets } sockets
    */
 
   /**
    * @type { GlobalClasses }
    */
-  classes = {};
+  classes = {
+    articles: new Articles(),
+    categories: new Categories(),
+    countries: new Countries(),
+    hosts: new Hosts(),
+    langs: new Langs(),
+    sockets: new Sockets(),
+  };
+
+  lib = redis.lib(
+    `${GlobalVariablesParser.dbName}:${GlobalVariablesParser.dbTable}`
+  );
 
   runUpdate() {
     setInterval(() => {
@@ -44,17 +55,21 @@ export class GlobalVariablesParser {
     return this;
   }
 
-  lib() {
-    return redis.lib(
-      `${GlobalVariablesParser.dbName}:${GlobalVariablesParser.dbTable}`
-    );
+  async init() {
+    await this.setUpdatedAt(await this.getUpdatedAtFromDb());
+
+    for (const classEntity of Object.values(this.classes)) {
+      await classEntity.fill();
+    }
+
+    return this;
   }
 
   /**
    * @param { string } updatedAt
    */
   async setUpdatedAt(updatedAt) {
-    await this.lib().add(GlobalVariablesParser.UPDATED_AT, updatedAt);
+    await this.lib.add(GlobalVariablesParser.UPDATED_AT, updatedAt);
 
     return this;
   }
@@ -62,61 +77,50 @@ export class GlobalVariablesParser {
   /**
    * @return {Promise<string>}
    */
-  async getUpdatedAt(updatedAt) {
-    return await this.lib().get(GlobalVariablesParser.UPDATED_AT);
+  async getUpdatedAt() {
+    return await this.lib.get(GlobalVariablesParser.UPDATED_AT);
   }
 
-  async updateLastTimestamp() {
-    const updatedAt =
+  /**
+   * @return {Promise<string | null>}
+   */
+  async getUpdatedAtFromDb() {
+    return (
       (
         await getDataFromDb({
           query: `SELECT \`updatedAt\` FROM \`${GlobalVariablesParser.dbTable}\` ORDER BY \`id\` DESC LIMIT 1`,
           dbName: GlobalVariablesParser.dbName,
         })
-      )?.[0]?.['updatedAt'] ?? null;
+      )?.[0]?.['updatedAt'] ?? null
+    );
+  }
 
-    await this.setUpdatedAt(updatedAt);
+  async clearStorage() {
+    await redis.clear();
 
     return this;
   }
 
-  async init() {
-    await redis.clear();
-
-    // await this.updateLastTimestamp();
-    // this.classes.langs = await (await new Langs().createIndexes()).fill();
-    // this.classes.categories = await (
-    //   await new Categories().createIndexes()
-    // ).fill();
-    // this.classes.countries = await (
-    //   await new Countries().createIndexes()
-    // ).fill();
-    // this.classes.hosts = await (await new Hosts().createIndexes()).fill();
-    // this.classes.sockets = await (await new Sockets().createIndexes()).fill();
-    // this.classes.aliases = await (await new Articles().createIndexes()).fill();
-
-    // this.classes.products = (
-    //   await new Products(this.variables.categories).fill()
-    // ).log();
-    // this.classes.productsImages = (await new ProductImages().fill()).log();
-    // this.classes.productFiles = (await new ProductFiles().fill()).log();
-    // this.classes.productCpus = (await new ProductCpus().fill()).log();
+  async createIndexes() {
+    for (const classEntity of Object.values(this.classes)) {
+      await classEntity.createIndexes();
+    }
 
     return this;
   }
 
   async runUpdateProcess() {
-    const updatedAt = this.updatedAt;
-
-    this.updateLastTimestamp().then();
-
-    const changeLogsEntities = await this.getLastUpdated(updatedAt);
+    const changeLogsEntities = await this.getLastChangeLogs();
 
     console.log({ changeLogsEntities });
 
     if (changeLogsEntities?.length) {
-      for (const className of Object.keys(this.classes)) {
-        await this.classes[className].update(changeLogsEntities);
+      await this.setUpdatedAt(
+        changeLogsEntities[changeLogsEntities.length - 1].updatedAt
+      );
+
+      for (const classEntity of Object.values(this.classes)) {
+        await classEntity.update(changeLogsEntities);
       }
     }
   }
@@ -124,12 +128,12 @@ export class GlobalVariablesParser {
   /**
    * @return { Promise<Array<ChangeLog> | null> }
    */
-  async getLastUpdated(updatedAt) {
+  async getLastChangeLogs() {
+    const updatedAt = await this.getUpdatedAt();
+
     if (!updatedAt) {
       return null;
     }
-
-    console.log('UpdatedAt: ', updatedAt);
 
     const changeLogs = await getDataFromDb({
       query: `SELECT * FROM \`${GlobalVariablesParser.dbTable}\` WHERE \`updatedAt\` > ? ORDER BY \`updatedAt\` ASC`,

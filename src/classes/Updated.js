@@ -136,11 +136,11 @@ export class Updated {
     const dbTable = this.constructor.dbTable;
     const dbName = this.constructor.dbName;
 
-    const changeLogs = allChangeLogs.filter(
+    const selfChangeLogs = allChangeLogs.filter(
       (c) => c.dbTable === dbTable && c.dbName === dbName
     );
 
-    if (!changeLogs?.length) {
+    if (!selfChangeLogs?.length) {
       return this;
     }
 
@@ -150,13 +150,13 @@ export class Updated {
     const updatedEntities = await this.getEntitiesFromDb(
       {
         query: `SELECT * FROM \`${dbTable}\` WHERE \`id\` IN (?)`,
-        prepareParams: this.getInsertUpdateIds(changeLogs),
+        prepareParams: this.getInsertUpdateIds(selfChangeLogs),
         dbName,
       },
       this.constructor.entityName
     );
 
-    for await (const changeLog of changeLogs) {
+    for await (const changeLog of selfChangeLogs) {
       const { action, primaryKey: entityId } = changeLog;
       switch (action) {
         case dbOperations.Insert:
