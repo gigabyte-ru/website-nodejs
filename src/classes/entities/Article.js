@@ -1,20 +1,20 @@
 import { Entity } from './Entity';
 
-export class Article extends Entity {
-  /**
-   * @typedef ArticleEntity
-   * @type { Object }
-   * @property { number } id
-   * @property { number } langId
-   * @property { number } articleId
-   * @property { string } alias
-   * @property { string } name
-   * @property { string } abstract
-   * @property { string } description
-   * @property { string } code
-   * @property { string } link
-   */
+/**
+ * @typedef ArticleEntity
+ * @type { Object }
+ * @property { number } id
+ * @property { number } langId
+ * @property { number } articleId
+ * @property { string } alias
+ * @property { string } name
+ * @property { string } abstract
+ * @property { string } description
+ * @property { string } code
+ * @property { string } link
+ */
 
+export class Article extends Entity {
   /**
    * @type { ArticleEntity }
    */

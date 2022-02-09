@@ -2,12 +2,17 @@ import dotenv from 'dotenv';
 
 import { getDataFromDb, redis } from '../utils';
 import {
-  Articles,
-  Categories,
-  Countries,
-  Langs,
-  Hosts,
-  Sockets,
+  ArticlesList,
+  CategoriesList,
+  CountriesList,
+  CpuHasSpecHasPropList,
+  LangsList,
+  HostsList,
+  SocketsList,
+  CpuList,
+  CpuSpecsList,
+  CpuSpecPropsList,
+  ProductHasCpuList,
 } from './lists';
 import { ChangeLog } from './entities';
 
@@ -23,24 +28,33 @@ export class GlobalVariablesParser {
   /**
    * @typedef GlobalClasses
    * @type { Object }
-   * @property { Articles } articles
-   * @property { Categories } categories
-   * @property { Countries } countries
-   * @property { Hosts } hosts
-   * @property { Langs } langs
-   * @property { Sockets } sockets
+   * @property { ArticlesList } articlesList
+   * @property { CategoriesList } categoriesList
+   * @property { CountriesList } countriesList
+   * @property { CpuList } cpuList
+   * @property { CpuSpecsList } cpuOptionsList
+   * @property { CpuSpecPropsList } cpuOptionValuesList
+   * @property { HostsList } hostsList
+   * @property { LangsList } langsList
+   * @property { SocketsList } socketsList
+   * @property { CpuHasSpecHasPropList } cpuHasSpecHasPropList
    */
 
   /**
    * @type { GlobalClasses }
    */
-  classes = {
-    articles: new Articles(),
-    categories: new Categories(),
-    countries: new Countries(),
-    hosts: new Hosts(),
-    langs: new Langs(),
-    sockets: new Sockets(),
+  entitiesLists = {
+    // articles: new ArticlesList(),
+    categories: new CategoriesList(),
+    countries: new CountriesList(),
+    cpuHasSpecHasPropList: new CpuHasSpecHasPropList(),
+    cpuList: new CpuList(),
+    cpuSpecPropsList: new CpuSpecPropsList(),
+    cpuSpecsList: new CpuSpecsList(),
+    hosts: new HostsList(),
+    langs: new LangsList(),
+    productHasCpuList: new ProductHasCpuList(),
+    sockets: new SocketsList(),
   };
 
   lib = redis.lib(
@@ -58,8 +72,8 @@ export class GlobalVariablesParser {
   async init() {
     await this.setUpdatedAt(await this.getUpdatedAtFromDb());
 
-    for (const classEntity of Object.values(this.classes)) {
-      await classEntity.fill();
+    for (const entityList of Object.values(this.entitiesLists)) {
+      await entityList.fill();
     }
 
     return this;
@@ -102,8 +116,16 @@ export class GlobalVariablesParser {
   }
 
   async createIndexes() {
-    for (const classEntity of Object.values(this.classes)) {
-      await classEntity.createIndexes();
+    for (const entityList of Object.values(this.entitiesLists)) {
+      await entityList.createIndexes();
+    }
+
+    return this;
+  }
+
+  async createTriggers() {
+    for (const entityList of Object.values(this.entitiesLists)) {
+      await entityList.createTriggers();
     }
 
     return this;
@@ -119,8 +141,8 @@ export class GlobalVariablesParser {
         changeLogsEntities[changeLogsEntities.length - 1].updatedAt
       );
 
-      for (const classEntity of Object.values(this.classes)) {
-        await classEntity.update(changeLogsEntities);
+      for (const entityList of Object.values(this.entitiesLists)) {
+        await entityList.update(changeLogsEntities);
       }
     }
   }

@@ -1,15 +1,20 @@
 import { Entity } from './Entity';
 
+/**
+ * @typedef CountryEntity
+ * @type { Object }
+ * @property { number } id
+ * @property { number } langId
+ * @property { string } name
+ * @property { string } link
+ * @property { string } redirectLink
+ */
+
 export class Country extends Entity {
   /**
-   * @typedef CountryEntity
-   * @type { Object }
-   * @property { number } id
-   * @property { number } langId
-   * @property { string } name
-   * @property { string } link
-   * @property { string } redirectLink
+   * @type { CountryEntity }
    */
+  data = {};
 
   /**
    * @return { Country }

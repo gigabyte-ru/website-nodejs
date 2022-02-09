@@ -7,8 +7,8 @@ const redisTypesMapper = {
 };
 
 /**
- * @param { Object.<string, SearchIndex> } searchIndexObject
- * @return { Object.<string, RedisIndexObject> }
+ * @param { SearchIndexes } searchIndexObject
+ * @return { Record<string, RedisIndexObject> }
  */
 export const redisIndexesMapper = (searchIndexObject) => {
   return Object.keys(searchIndexObject).reduce(

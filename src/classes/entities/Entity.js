@@ -1,7 +1,14 @@
 /**
- * @constructor
+ * @typedef SearchIndexes
+ * @type { Record<string, { type: FieldTypes }> }
  */
+
 export class Entity {
+  /**
+   * @type { SearchIndexes }
+   */
+  static searchIndexes = {};
+
   data = {};
 
   /**
@@ -15,7 +22,7 @@ export class Entity {
     return this;
   }
 
-  setData(data) {
+  setDataFromMemory(data) {
     this.data = data;
 
     return this;

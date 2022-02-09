@@ -1,22 +1,22 @@
 import { Entity } from './Entity';
 
-export class Category extends Entity {
-  /**
-   * @typedef CategoryEntity
-   * @type { Object }
-   * @property { number } id
-   * @property { number } approved
-   * @property { number } parentId
-   * @property { string } name
-   * @property { string } alias
-   * @property { number } originalId
-   * @property { number } originalSpecParentId
-   * @property { string } originalAlias
-   * @property { string } originalName
-   * @property { string } originalLinkAlias
-   * @property { number } sorder
-   */
+/**
+ * @typedef CategoryEntity
+ * @type { Object }
+ * @property { number } id
+ * @property { number } approved
+ * @property { number } parentId
+ * @property { string } name
+ * @property { string } alias
+ * @property { number } originalId
+ * @property { number } originalSpecParentId
+ * @property { string } originalAlias
+ * @property { string } originalName
+ * @property { string } originalLinkAlias
+ * @property { number } sorder
+ */
 
+export class Category extends Entity {
   /**
    * @type { CategoryEntity }
    */

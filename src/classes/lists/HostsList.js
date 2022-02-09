@@ -1,14 +1,14 @@
-import { Updated } from '../Updated';
-import { SchemaFieldTypes } from 'redis';
-import { FieldTypes } from '../../constants';
+import { List } from './List';
 import { Host } from '../entities';
+import { FieldTypes } from '../../constants';
 
-export class Hosts extends Updated {
+export class HostsList extends List {
   static dbName = 'u15821_global';
   static dbTable = 'domains';
   static entityName = Host;
+
   /**
-   * @type { Object.<string, SearchIndex>  }
+   * @type { Record<string, SearchIndex>  }
    */
   static searchIndexes = {
     name: {

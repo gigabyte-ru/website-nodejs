@@ -1,29 +1,29 @@
 import { Entity } from './Entity';
 
-export class Cpu extends Entity {
+export class CpuSpec extends Entity {
   /**
-   * @typedef CpuEntity
+   * @typedef CpuSpecEntity
    * @type { Object }
    * @property { number } id
    * @property { string } name
-   * @property { number } markId
-   * @property { number } socketId
+   * @property { string } unit
+   * @property { number } sorder
    */
 
   /**
-   * @type { CpuEntity }
+   * @type { CpuSpecEntity }
    */
   data = {};
 
   /**
-   * @return { Cpu }
+   * @return { CpuSpec }
    */
   setDataFromDb(entityFromDb) {
     super.setDataFromDb(entityFromDb);
 
     this.data.name = entityFromDb['name'];
-    this.data.markId = entityFromDb['markId'];
-    this.data.socketId = entityFromDb['socketId'];
+    this.data.unit = entityFromDb['unit'];
+    this.data.sorder = entityFromDb['sorder'];
 
     return this;
   }

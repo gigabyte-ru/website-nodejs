@@ -1,8 +1,8 @@
 import { ProductImage } from './entities';
-import { Updated } from './Updated';
+import { List } from './lists';
 import { getDataFromDb } from '../utils';
 
-export class ProductImages extends Updated {
+export class ProductImages extends List {
   static dbName = 'u15821_products';
   static dbTables = {
     productImagesOriginals: 'product_images_originals',

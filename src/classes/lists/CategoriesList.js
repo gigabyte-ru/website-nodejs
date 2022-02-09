@@ -1,7 +1,7 @@
-import { Updated } from '../Updated';
+import { List } from './List';
 import { Category } from '../entities';
 
-export class Categories extends Updated {
+export class CategoriesList extends List {
   static dbName = 'u15821_products';
   static dbTable = 'categories';
   static entityName = Category;

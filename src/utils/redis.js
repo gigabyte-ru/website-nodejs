@@ -6,6 +6,19 @@ dotenv.config();
 const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
 
 /**
+ * @typedef RedisLib
+ * @type Object
+ * @property { (indexesObject: Record<string, RedisIndexObject>) => Promise<RedisLib> } createIndexes
+ * @property { (searchText: string) => Promise<Array<Entity.data>> } search
+ * @property { (key: string | number) => Promise<Boolean> } has
+ * @property { (key: string | number, value: object | string | number) => Promise<this> } add
+ * @property { (keyValues: Array<{ key: number|string, value: object|string|number }> ) => Promise<this> } multiAdd
+ * @property { (key: string | number) => Promise< null | Object | string | number> } get
+ * @property { (key: string | number) => Promise<this> } delete
+ * @property { () => Promise<this> } clear
+ */
+
+/**
  *
  * @param { Object | string | number } value
  * @return { Object }
@@ -32,6 +45,7 @@ const Redis = async function () {
 
   /**
    * @param libKey { string }
+   * @return RedisLib
    */
   const lib = function (libKey) {
     /**
@@ -43,10 +57,6 @@ const Redis = async function () {
     const searchKey = `idx:${libKey}`;
 
     return {
-      /**
-       * @param indexesObject
-       * @return { Promise<this> }
-       */
       async createIndexes(indexesObject) {
         console.log(`Create index ${searchKey} for ${libKey}`, indexesObject);
 
@@ -66,10 +76,6 @@ const Redis = async function () {
         return lib;
       },
 
-      /**
-       * @param { string } searchText
-       * @return {Promise<Array<Entity.data>>}
-       */
       async search(searchText) {
         try {
           const searchData = await client.ft.search(searchKey, searchText);
@@ -77,31 +83,21 @@ const Redis = async function () {
           if (searchData?.documents.length) {
             return searchData.documents.map((d) => d.value);
           }
-
-          return null;
         } catch (e) {
           console.error(e);
         }
+
+        return [];
       },
 
-      /**
-       * @param key { string | number }
-       * @param value { object | string | number }
-       * @return {Promise<boolean>}
-       */
       async has(key) {
         try {
-          return await client.exists(getFullKey(key));
+          return Boolean(await client.exists(getFullKey(key)));
         } catch (e) {
           console.error(e);
         }
       },
 
-      /**
-       * @param key { string | number }
-       * @param value { object | string | number }
-       * @return {Promise<this>}
-       */
       async add(key, value) {
         const redisKey = getFullKey(key);
         try {
@@ -113,10 +109,6 @@ const Redis = async function () {
         return lib;
       },
 
-      /**
-       * @param keyValues { Array<{ key: number|string, value: object|string|number }> }
-       * @return {Promise<this>}
-       */
       async multiAdd(keyValues) {
         try {
           const promises = keyValues.map((o) =>
@@ -130,26 +122,6 @@ const Redis = async function () {
         return lib;
       },
 
-      /**
-       * @param key { string | number }
-       * @param keyValues { Array<{ key: number|string, value: object|string|number }> }
-       * @return {Promise<this>}
-       */
-      async addHash(key, keyValues) {
-        const keyValuesFlat = keyValues.reduce(
-          (acc, val) =>
-            (acc.push(val.key, getStringValue(val.value)) && acc) || acc,
-          []
-        );
-        await client.hSet(getFullKey(key), ...keyValuesFlat);
-
-        return lib;
-      },
-
-      /**
-       * @param key { string | number }
-       * @return {Promise< null | Object | string | number>}
-       */
       async get(key) {
         try {
           return await client.json.get(getFullKey(key));
@@ -158,10 +130,6 @@ const Redis = async function () {
         }
       },
 
-      /**
-       * @param key { string | number }
-       * @return {Promise<this>}
-       */
       async delete(key) {
         try {
           await client.del(getFullKey(key));

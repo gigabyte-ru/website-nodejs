@@ -1,12 +1,22 @@
 import { Entity } from './Entity';
+import { FieldTypes } from '../../constants';
+
+/**
+ * @typedef LangEntity
+ * @type { Object }
+ * @property { number } id
+ * @property { string } alias
+ */
 
 export class Lang extends Entity {
   /**
-   * @typedef LangEntity
-   * @type { Object }
-   * @property { number } id
-   * @property { string } alias
+   * @type { Object.<string, SearchIndex>  }
    */
+  static searchIndexes = {
+    alias: {
+      type: FieldTypes.STRING,
+    },
+  };
 
   /**
    * @type { LangEntity }

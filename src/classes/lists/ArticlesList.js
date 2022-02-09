@@ -1,14 +1,14 @@
-import { Updated } from '../Updated';
+import { List } from './List';
 import { Article } from '../entities';
 import { FieldTypes } from '../../constants';
 
-export class Articles extends Updated {
+export class ArticlesList extends List {
   static dbName = 'u15821_global';
   static dbTable = 'articles';
   static entityName = Article;
 
   /**
-   * @type { Object.<string, SearchIndex>  }
+   * @type { SearchIndexes }
    */
   static searchIndexes = {
     langId: {
@@ -35,6 +35,12 @@ export class Articles extends Updated {
       searchText += ` @alias:${articleOrAlias}`;
     }
 
-    return await this.lib.search(searchText);
+    const data = await this.lib.search(searchText);
+
+    if (data) {
+      return new this.constructor.entityName().setDataFromMemory(data);
+    }
+
+    return null;
   }
 }

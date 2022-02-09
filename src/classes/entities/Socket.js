@@ -1,21 +1,22 @@
 import { Entity } from './Entity';
-import { Categories } from '../lists/Categories';
+import { CategoriesList } from '../lists/CategoriesList';
+import { FieldTypes } from '../../constants';
+
+/**
+ * @typedef SocketEntity
+ * @type { Object }
+ * @property { number } id
+ * @property { string } name
+ * @property { string } alias
+ * @property { number } markId
+ * @property { number } categoryId
+ * @property { number } countryId
+ * @property { boolean } isApproved
+ * @property { boolean } isVisible
+ * @property { number } sorder
+ */
 
 export class Socket extends Entity {
-  /**
-   * @typedef SocketEntity
-   * @type { Object }
-   * @property { number } id
-   * @property { string } name
-   * @property { string } alias
-   * @property { number } markId
-   * @property { number } categoryId
-   * @property { number } countryId
-   * @property { boolean } isApproved
-   * @property { boolean } isVisible
-   * @property { number } sorder
-   */
-
   /**
    * @type { SocketEntity }
    */
@@ -39,7 +40,7 @@ export class Socket extends Entity {
   }
 
   async linkEntities() {
-    this.category = await new Categories().get(this.categoryId);
+    this.category = await new CategoriesList().get(this.categoryId);
     // this.mark =
     return this;
   }

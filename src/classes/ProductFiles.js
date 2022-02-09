@@ -1,8 +1,8 @@
 import { DB, getDataFromDb } from '../utils';
-import { Updated } from './Updated';
+import { List } from './lists';
 import { File, FileGroup, FileType, Os, ProductFile, OsFile } from './entities';
 
-export class ProductFiles extends Updated {
+export class ProductFiles extends List {
   static dbName = 'u15821_products';
   static dbTables = {
     files: 'files',

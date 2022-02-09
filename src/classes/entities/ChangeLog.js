@@ -1,17 +1,17 @@
 import { Entity } from './Entity';
 
-export class ChangeLog extends Entity {
-  /**
-   * @typedef ChangeLogEntity
-   * @type { Object }
-   * @property { number } id
-   * @property { 'insert' | 'update' | 'delete' } action
-   * @property { string } dbName
-   * @property { string } dbTable
-   * @property { number } primaryKey
-   * @property { string } updatedAt
-   */
+/**
+ * @typedef ChangeLogEntity
+ * @type { Object }
+ * @property { number } id
+ * @property { 'insert' | 'update' | 'delete' } action
+ * @property { string } dbName
+ * @property { string } dbTable
+ * @property { number } primaryKey
+ * @property { string } updatedAt
+ */
 
+export class ChangeLog extends Entity {
   /**
    * @type { ChangeLogEntity }
    */

@@ -1,9 +1,9 @@
-import { Updated } from './Updated';
-import { Categories } from './lists/Categories';
+import { List } from './lists';
+import { CategoriesList } from './lists/CategoriesList';
 import { Product } from './entities';
 import { getDataFromDb } from '../utils';
 
-export class Products extends Updated {
+export class Products extends List {
   static dbName = 'u15821_products';
   static dbTables = {
     products: 'products',
@@ -11,7 +11,7 @@ export class Products extends Updated {
 
   data = new Map();
 
-  constructor(categories = new Categories()) {
+  constructor(categories = new CategoriesList()) {
     super();
 
     this.categories = categories;

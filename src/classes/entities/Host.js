@@ -1,17 +1,18 @@
 import { Entity } from './Entity';
+import { FieldTypes } from '../../constants';
+
+/**
+ * @typedef HostEntity
+ * @type { Object }
+ * @property { number } id
+ * @property { number } firstLangId
+ * @property { number } secondLangId
+ * @property { number } defaultLangId
+ * @property { string } name
+ * @property { number } countryId
+ */
 
 export class Host extends Entity {
-  /**
-   * @typedef HostEntity
-   * @type { Object }
-   * @property { number } id
-   * @property { number } firstLangId
-   * @property { number } secondLangId
-   * @property { number } defaultLangId
-   * @property { string } name
-   * @property { number } countryId
-   */
-
   /**
    * @type { HostEntity }
    */

@@ -5,13 +5,20 @@ import {
   getTriggerQueries,
   redis,
   TRIGGERS,
-} from '../utils';
-import { dbOperations } from '../constants';
-import { Entity } from './entities/Entity';
+} from '../../utils';
+import { dbOperations, FieldTypes } from '../../constants';
+import { Entity } from '../entities/Entity';
 import { SchemaFieldTypes } from 'redis';
-import { redisIndexesMapper } from '../utils';
+import { redisIndexesMapper } from '../../utils';
 
-export class Updated {
+/**
+ * @typedef RedisIndexObject
+ * @type Object
+ * @property { string } AS
+ * @property { SchemaFieldTypes } type
+ */
+
+export class List {
   static MAX_UPLOADED_ENTITIES = 1000;
 
   /**
@@ -33,25 +40,16 @@ export class Updated {
   static entityName = Entity;
 
   /**
-   * @typedef SearchIndex
-   * @type Object
-   * @property { FieldTypes } type
-   */
-
-  /**
-   * @type { Object.<string, SearchIndex>  }
+   * @type { Record<string, SearchIndex>  }
    */
   static searchIndexes = {};
 
-  /**
-   * @typedef RedisIndexObject
-   * @type Object
-   * @property { SchemaFieldTypes } type
-   * @property { string } AS
-   */
-
   constructor() {
     this.libKey = `${this.constructor.dbName}:${this.constructor.dbTable}`;
+
+    /**
+     * @type { RedisLib }
+     */
     this.lib = redis.lib(this.libKey);
   }
 
@@ -67,7 +65,7 @@ export class Updated {
     const memoryEntity = await this.lib.get(entityId);
 
     if (memoryEntity) {
-      return new this.constructor.entityName().setData(memoryEntity);
+      return new this.constructor.entityName().setDataFromMemory(memoryEntity);
     }
 
     return null;
@@ -207,7 +205,7 @@ export class Updated {
     do {
       dynamicEntities.push(entities.shift());
       if (
-        dynamicEntities.length === Updated.MAX_UPLOADED_ENTITIES ||
+        dynamicEntities.length === List.MAX_UPLOADED_ENTITIES ||
         !entities.length
       ) {
         await this.insertEntities(dynamicEntities);
@@ -242,34 +240,29 @@ export class Updated {
     return retMap;
   }
 
-  async createTriggers(db = null) {
+  async createTriggers() {
     const dbName = this.constructor.dbName;
-    const dbTables = getArrayFromObject(this.constructor.dbTables);
+    const dbTable = this.constructor.dbTable;
 
-    if (dbTables.length) {
-      const currentDb = db ?? (await DB().connect(dbName));
+    const currentDb = await DB().connect(dbName);
 
-      for (const dbTable of dbTables) {
-        for (const trigger of getArrayFromObject(TRIGGERS)) {
-          const queries = getTriggerQueries({
-            trigger,
-            dbName,
-            dbTable,
-          });
-          try {
-            for (const query of queries) {
-              await currentDb.queryWithoutPrepare(query);
-            }
-          } catch (e) {
-            console.error(e);
-          }
+    for (const trigger of getArrayFromObject(TRIGGERS)) {
+      const queries = getTriggerQueries({
+        trigger,
+        dbName,
+        dbTable,
+      });
+
+      try {
+        for (const query of queries) {
+          await currentDb.queryWithoutPrepare(query);
         }
-      }
-
-      if (!db) {
-        await currentDb.disconnect();
+      } catch (e) {
+        console.error(e);
       }
     }
+
+    await currentDb.disconnect();
 
     return this;
   }

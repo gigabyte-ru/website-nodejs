@@ -1,6 +1,11 @@
 import http from 'http';
 import { processRoute } from './utils';
-import { Articles, Categories, Countries, Langs } from './classes';
+import {
+  ArticlesList,
+  CategoriesList,
+  CountriesList,
+  LangsList,
+} from './classes';
 import { redis } from './utils';
 import dotenv from 'dotenv';
 
@@ -8,10 +13,10 @@ dotenv.config();
 const HTTP_PORT = process.env.SERVER_HTTP_PORT;
 
 (async () => {
-  const lang = await new Langs().get(10);
-  const category = await new Categories().get(1);
-  const country = await new Countries().get(1);
-  const article = await new Articles().get(266683);
+  const lang = await new LangsList().get(10);
+  const category = await new CategoriesList().get(1);
+  const country = await new CountriesList().get(1);
+  const article = await new ArticlesList().get(266683);
 
   await redis.quit();
 
