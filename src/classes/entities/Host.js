@@ -1,5 +1,4 @@
 import { Entity } from './Entity';
-import { FieldTypes } from '../../constants';
 
 /**
  * @typedef HostEntity

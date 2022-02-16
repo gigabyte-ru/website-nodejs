@@ -31,11 +31,11 @@ export const getProductImages = async (productId = null) => {
     }
 
     const content = response?.data;
-    if (!content?.['Products']?.['FileData']) {
+    if (!content?.['ProductsList']?.['FileData']) {
       continue;
     }
 
-    const imagesForInsert = content?.['Products']?.['FileData'];
+    const imagesForInsert = content?.['ProductsList']?.['FileData'];
     const prevImages = await db.query(
       `SELECT * FROM \`product_images_originals\` WHERE \`product_id\` = ?`,
       [product['id']]

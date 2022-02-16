@@ -1,22 +1,54 @@
 import dotenv from 'dotenv';
 
 import { getDataFromDb, redis } from '../utils';
+import { ChangeLog } from './entities';
 import {
   ArticlesList,
   CategoriesList,
   CountriesList,
   CpuHasSpecHasPropList,
-  LangsList,
-  HostsList,
-  SocketsList,
   CpuList,
-  CpuSpecsList,
   CpuSpecPropsList,
+  CpuSpecsList,
+  FileGroupsList,
+  FileHasOsList,
+  FilesList,
+  FileTypesList,
+  HostsList,
+  LangsList,
+  OsList,
   ProductHasCpuList,
+  ProductHasFilesList,
+  ProductImagesList,
+  ProductsList,
+  SocketsList,
 } from './lists';
-import { ChangeLog } from './entities';
 
 dotenv.config();
+
+/**
+ * @typedef GlobalClasses
+ * @type { Object }
+ * @property { ArticlesList } articlesList
+ * @property { CategoriesList } categoriesList
+ * @property { CountriesList } countriesList
+ * @property { CpuHasSpecHasPropList } cpuHasSpecHasPropList
+ * @property { CpuList } cpuList
+ * @property { CpuSpecPropsList } cpuSpecPropsList
+ * @property { CpuSpecsList } cpuSpecsList
+ * @property { FileGroupsList } fileGroupsList
+ * @property { FileHasOsList } fileHasOsList
+ * @property { FilesList } filesList
+ * @property { FileTypesList } fileTypesList
+ * @property { HostsList } hostsList
+ * @property { LangsList } langsList
+ * @property { OsList } osList
+ * @property { ProductHasCpuList } productHasCpuList
+ * @property { ProductHasFilesList } productHasFilesList
+ * @property { ProductImagesList } productImagesList
+ * @property { ProductsList } productsList
+ * @property { SocketsList } socketsList
+ */
 
 export class GlobalVariablesParser {
   static UPDATED_AT = 'updatedAt';
@@ -25,41 +57,34 @@ export class GlobalVariablesParser {
   static dbName = 'u15824_logs';
   static dbTable = 'db_change_log';
 
-  /**
-   * @typedef GlobalClasses
-   * @type { Object }
-   * @property { ArticlesList } articlesList
-   * @property { CategoriesList } categoriesList
-   * @property { CountriesList } countriesList
-   * @property { CpuList } cpuList
-   * @property { CpuSpecsList } cpuOptionsList
-   * @property { CpuSpecPropsList } cpuOptionValuesList
-   * @property { HostsList } hostsList
-   * @property { LangsList } langsList
-   * @property { SocketsList } socketsList
-   * @property { CpuHasSpecHasPropList } cpuHasSpecHasPropList
-   */
+  lib = redis.lib(
+    `${GlobalVariablesParser.dbName}:${GlobalVariablesParser.dbTable}`
+  );
 
   /**
    * @type { GlobalClasses }
    */
   entitiesLists = {
-    // articles: new ArticlesList(),
-    categories: new CategoriesList(),
-    countries: new CountriesList(),
+    articlesList: new ArticlesList(),
+    categoriesList: new CategoriesList(),
+    countriesList: new CountriesList(),
     cpuHasSpecHasPropList: new CpuHasSpecHasPropList(),
     cpuList: new CpuList(),
     cpuSpecPropsList: new CpuSpecPropsList(),
     cpuSpecsList: new CpuSpecsList(),
-    hosts: new HostsList(),
-    langs: new LangsList(),
+    fileGroupsList: new FileGroupsList(),
+    fileHasOsList: new FileHasOsList(),
+    filesList: new FilesList(),
+    fileTypesList: new FileTypesList(),
+    hostsList: new HostsList(),
+    langsList: new LangsList(),
+    osList: new OsList(),
     productHasCpuList: new ProductHasCpuList(),
-    sockets: new SocketsList(),
+    productHasFilesList: new ProductHasFilesList(),
+    productImagesList: new ProductImagesList(),
+    productsList: new ProductsList(),
+    socketsList: new SocketsList(),
   };
-
-  lib = redis.lib(
-    `${GlobalVariablesParser.dbName}:${GlobalVariablesParser.dbTable}`
-  );
 
   runUpdate() {
     setInterval(() => {
@@ -70,6 +95,7 @@ export class GlobalVariablesParser {
   }
 
   async init() {
+    console.log(`Start init at ${new Date().toLocaleString()}`);
     await this.setUpdatedAt(await this.getUpdatedAtFromDb());
 
     for (const entityList of Object.values(this.entitiesLists)) {

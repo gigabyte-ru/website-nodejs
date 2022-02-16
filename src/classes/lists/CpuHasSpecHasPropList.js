@@ -1,5 +1,5 @@
 import { List } from './List';
-import { CpuHasSpecHasProp } from '../entities';
+import { CpuHasSpecHasProp } from '../entities/CpuHasSpecHasProp';
 import { FieldTypes } from '../../constants';
 
 export class CpuHasSpecHasPropList extends List {

@@ -1,5 +1,4 @@
 import { Entity } from './Entity';
-import { CpuList } from '../lists/CpuList';
 import { CpuSpecsList } from '../lists/CpuSpecsList';
 import { CpuSpecPropsList } from '../lists/CpuSpecPropsList';
 
@@ -19,17 +18,12 @@ export class CpuHasSpecHasProp extends Entity {
   data = {};
 
   /**
-   * @type { CpuEntity | null }
-   */
-  cpu = null;
-
-  /**
-   * @type { CpuSpecEntity | null }
+   * @type { CpuSpec | null }
    */
   cpuSpec = null;
 
   /**
-   * @type { CpuSpecPropEntity | null }
+   * @type { CpuSpecProp | null }
    */
   cpuSpecProp = null;
 
@@ -47,7 +41,6 @@ export class CpuHasSpecHasProp extends Entity {
   }
 
   async setLinksEntities() {
-    this.cpu = await new CpuList().get(this.data.cpuId);
     this.cpuSpec = await new CpuSpecsList().get(this.data.cpuSpecId);
     this.cpuSpecProp = await new CpuSpecPropsList().get(
       this.data.cpuSpecPropId

@@ -1,5 +1,6 @@
 import { Entity } from './Entity';
 import { CpuHasSpecHasPropList } from '../lists/CpuHasSpecHasPropList';
+import { CpuList } from '../lists/CpuList';
 
 /**
  * @typedef ProductHasCpuEntity
@@ -18,9 +19,14 @@ export class ProductHasCpu extends Entity {
   data = {};
 
   /**
+   * @type { Cpu[] | null }
+   */
+  cpu = null;
+
+  /**
    * @type { CpuHasSpecHasProp[] | null }
    */
-  cpuHasSpecHasPropEntities = null;
+  specsAndProps = null;
 
   /**
    * @return { ProductHasCpu }
@@ -37,12 +43,15 @@ export class ProductHasCpu extends Entity {
   }
 
   async setLinksEntities() {
-    this.cpuHasSpecHasPropEntities =
-      await new CpuHasSpecHasPropList().getEntitiesByCpu(this.data.cpuId);
+    this.cpu = await new CpuList().get(this.data.cpuId);
 
-    if (this.cpuHasSpecHasPropEntities) {
+    this.specsAndProps = await new CpuHasSpecHasPropList().getEntitiesByCpu(
+      this.data.cpuId
+    );
+
+    if (this.specsAndProps) {
       await Promise.all([
-        ...this.cpuHasSpecHasPropEntities.map((e) => e.setLinksEntities()),
+        ...this.specsAndProps.map((e) => e.setLinksEntities()),
       ]);
     }
   }

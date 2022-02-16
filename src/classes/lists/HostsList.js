@@ -1,5 +1,5 @@
 import { List } from './List';
-import { Host } from '../entities';
+import { Host } from '../entities/Host';
 import { FieldTypes } from '../../constants';
 
 export class HostsList extends List {
@@ -8,7 +8,7 @@ export class HostsList extends List {
   static entityName = Host;
 
   /**
-   * @type { Record<string, SearchIndex>  }
+   * @type { SearchIndexes }
    */
   static searchIndexes = {
     name: {

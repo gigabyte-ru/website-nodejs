@@ -1,6 +1,5 @@
 import { Entity } from './Entity';
 import { CategoriesList } from '../lists/CategoriesList';
-import { FieldTypes } from '../../constants';
 
 /**
  * @typedef SocketEntity

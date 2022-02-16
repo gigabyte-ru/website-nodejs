@@ -1,11 +1,11 @@
 import { List } from './List';
-import { ProductHasCpu } from '../entities/ProductHasCpu';
+import { ProductHasFile } from '../entities/ProductHasFile';
 import { FieldTypes } from '../../constants';
 
-export class ProductHasCpuList extends List {
+export class ProductHasFilesList extends List {
   static dbName = 'u15821_products';
-  static dbTable = 'product_cpu';
-  static entityName = ProductHasCpu;
+  static dbTable = 'product_files';
+  static entityName = ProductHasFile;
 
   /**
    * @type { SearchIndexes }
@@ -14,22 +14,19 @@ export class ProductHasCpuList extends List {
     productId: {
       type: FieldTypes.NUMBER,
     },
-    cpuId: {
-      type: FieldTypes.NUMBER,
-    },
   };
 
   /**
-   * @param {number} productId
-   * @return {Promise<ProductHasCpu[]>}
+   * @param { number } productId
+   * @return { Promise<ProductHasFile[]> }
    */
   async getEntitiesByProduct(productId) {
     /**
-     * @type {ProductHasCpu[]}
+     * @type { ProductHasFile[] }
      */
     const products = (
       await this.lib.search(`@productId:[${productId} ${productId}]`)
-    ).map((d) => new ProductHasCpu().setDataFromMemory(d));
+    ).map((d) => new ProductHasFile().setDataFromMemory(d));
 
     if (products) {
       await Promise.all([...products.map((p) => p.setLinksEntities())]);

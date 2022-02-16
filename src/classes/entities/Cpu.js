@@ -1,15 +1,15 @@
 import { Entity } from './Entity';
 
-export class Cpu extends Entity {
-  /**
-   * @typedef CpuEntity
-   * @type { Object }
-   * @property { number } id
-   * @property { string } name
-   * @property { number } markId
-   * @property { number } socketId
-   */
+/**
+ * @typedef CpuEntity
+ * @type { Object }
+ * @property { number } id
+ * @property { string } name
+ * @property { number } markId
+ * @property { number } socketId
+ */
 
+export class Cpu extends Entity {
   /**
    * @type { CpuEntity }
    */

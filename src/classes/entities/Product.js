@@ -1,34 +1,69 @@
-import { globalVariables } from '../GlobalVariables.js';
 import { Entity } from './Entity';
+import { ProductHasCpuList } from '../lists/ProductHasCpuList';
+import { ProductImagesList } from '../lists/ProductImagesList';
+import { ProductHasFilesList } from '../lists/ProductHasFilesList';
+
+/**
+ * @typedef ProductEntity
+ * @type { Object }
+ * @property { number } id
+ * @property { string } alias
+ * @property { string } originalAlias
+ * @property { string } fullName
+ */
 
 export class Product extends Entity {
-  images = [];
+  /**
+   * @type { ProductEntity }
+   */
+  data = {};
 
-  constructor(productDb) {
-    super(productDb);
+  /**
+   * @type { ProductHasCpu[] | null}
+   */
+  cpuList = null;
 
-    this.alias = productDb['alias'];
-    this.originalAlias = productDb['original_alias'];
-    this.fullName = productDb['fullname'];
-  }
+  /**
+   * @type { ProductImage[] | null }
+   */
+  imagesList = null;
 
-  getImages() {
-    this.images = globalVariables.variables.productsImages.get(this.id);
+  /**
+   * @type { ProductHasFile[] | null }
+   */
+  filesList = null;
+
+  /**
+   * @return { Product }
+   */
+  setDataFromDb(entityFromDb) {
+    super.setDataFromDb(entityFromDb);
+
+    this.data.alias = entityFromDb['alias'];
+    this.data.originalAlias = entityFromDb['original_alias'];
+    this.data.fullName = entityFromDb['fullname'];
+
     return this;
   }
 
-  getFiles() {
-    this.files = globalVariables.variables.productFiles.get(this.id);
+  async setCpus() {
+    this.cpuList = await new ProductHasCpuList().getEntitiesByProduct(
+      this.data.id
+    );
     return this;
   }
 
-  getCpus() {
-    this.cpus = globalVariables.variables.productCpus.get(this.id);
+  async setImages() {
+    this.imagesList = await new ProductImagesList().getEntitiesByProduct(
+      this.data.id
+    );
     return this;
   }
 
-  log() {
-    console.log(this);
+  async setFiles() {
+    this.filesList = await new ProductHasFilesList().getEntitiesByProduct(
+      this.data.id
+    );
     return this;
   }
 }

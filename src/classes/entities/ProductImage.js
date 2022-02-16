@@ -1,11 +1,30 @@
 import { Entity } from './Entity';
 
-export class ProductImage extends Entity {
-  constructor(imageDb) {
-    super(imageDb);
+/**
+ * @typedef ProductImageEntity
+ * @type { Object }
+ * @property { number } id
+ * @property { number } productId
+ * @property { string } extension
+ * @property { string } path
+ */
 
-    this.productId = imageDb['product_id'];
-    this.extension = imageDb['extension'];
-    this.path = imageDb['path'];
+export class ProductImage extends Entity {
+  /**
+   * @type { ProductImageEntity }
+   */
+  data = {};
+
+  /**
+   * @return { ProductImage }
+   */
+  setDataFromDb(entityFromDb) {
+    super.setDataFromDb(entityFromDb);
+
+    this.data.productId = entityFromDb['product_id'];
+    this.data.extension = entityFromDb['extension'];
+    this.data.path = entityFromDb['path'];
+
+    return this;
   }
 }
