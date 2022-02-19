@@ -1,6 +1,6 @@
-import { GlobalVariablesParser } from '../classes';
+import { GlobalVariables } from '../classes';
 
-new GlobalVariablesParser()
+new GlobalVariables()
   .createTriggers()
   .then(() => {
     console.log('All triggers are created successfully!');

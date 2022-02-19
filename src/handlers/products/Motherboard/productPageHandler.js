@@ -4,7 +4,7 @@ import {
   parseTemplateVariables,
 } from '../../../utils';
 import { MainMenuHandler } from '../../mainMenuHandler.js';
-import { GlobalVariablesParser, globalVariables } from '../../../classes';
+import { GlobalVariables, globalVariables } from '../../../classes';
 
 export class ProductPageHandler {
   constructor(currentSession) {
@@ -15,7 +15,7 @@ export class ProductPageHandler {
     );
     this.product.getImages().getFiles().getCpus();
     console.log(this.product);
-    this.mainTemplatePath = `${GlobalVariablesParser.SRC_PATH}/templates/products/${currentSession.category.originalAlias}/index.html`;
+    this.mainTemplatePath = `${GlobalVariables.SRC_PATH}/templates/products/${currentSession.category.originalAlias}/index.html`;
   }
 
   async parseLocalModules() {
