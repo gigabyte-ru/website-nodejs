@@ -4,17 +4,28 @@ import {
   parseTemplateVariables,
 } from '../../../utils';
 import { MainMenuHandler } from '../../mainMenuHandler.js';
-import { GlobalVariables, globalVariables } from '../../../classes';
+import { GlobalVariables, ProductsList } from '../../../classes';
 
 export class ProductPageHandler {
   constructor(currentSession) {
     this.currentSession = currentSession;
-    this.product = globalVariables.variables.products.get(
-      currentSession.category,
-      currentSession.route.params['productAlias']
-    );
-    this.product.getImages().getFiles().getCpus();
-    console.log(this.product);
+    const productAlias = currentSession.route.params['productAlias'];
+    new ProductsList().getEntityByAlias(productAlias).then((products) => {
+      if (products.length) {
+        this.product = products.find(
+          (p) =>
+            p.data.originalAlias === productAlias ||
+            p.data.alias === productAlias
+        );
+        if (this.product) {
+          Promise.all([
+            this.product.setCpus(),
+            this.product.setImages(),
+            this.product.setFiles(),
+          ]);
+        }
+      }
+    });
     this.mainTemplatePath = `${GlobalVariables.SRC_PATH}/templates/products/${currentSession.category.originalAlias}/index.html`;
   }
 
@@ -37,11 +48,9 @@ export class ProductPageHandler {
       }
     );
 
-    const templateAfterParseBlocks = await parseTemplateBlocks(
+    return await parseTemplateBlocks(
       templateAfterParseVariables,
       await this.parseLocalModules()
     );
-
-    return templateAfterParseBlocks;
   }
 }

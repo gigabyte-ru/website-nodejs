@@ -28,5 +28,7 @@ export class ChangeLog extends Entity {
     this.dbTable = entityFromDb['db_table'];
     this.primaryKey = entityFromDb['primary_key'];
     this.updatedAt = entityFromDb['updatedAt'];
+
+    return this;
   }
 }

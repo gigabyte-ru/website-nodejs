@@ -37,8 +37,8 @@ export class ArticlesList extends List {
 
     const data = await this.lib.search(searchText);
 
-    if (data) {
-      return new this.constructor.entityName().setDataFromMemory(data);
+    if (data.length) {
+      return new this.constructor.entityName().setDataFromMemory(data[0]);
     }
 
     return null;

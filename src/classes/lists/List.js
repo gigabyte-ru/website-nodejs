@@ -117,14 +117,15 @@ export class List {
    * @return { Array<number> }
    */
   getInsertUpdateIds(changeLogs) {
-    return changeLogs.reduce((acc, changeLog) => {
-      if (
-        [dbOperations.Insert, dbOperations.Update].includes(changeLog.action)
-      ) {
-        acc.push(changeLog.primaryKey);
-      }
-      return acc;
-    }, []);
+    return Array.from(
+      changeLogs.reduce(
+        (acc, changeLog) =>
+          [dbOperations.Insert, dbOperations.Update].includes(changeLog.action)
+            ? acc.add(changeLog.primaryKey)
+            : acc,
+        new Set()
+      )
+    );
   }
 
   /**
@@ -142,13 +143,18 @@ export class List {
       return this;
     }
 
+    const insertUpdateIds = this.getInsertUpdateIds(selfChangeLogs);
+    const insertUpdateIdsPrepareString = insertUpdateIds
+      .map(() => '?')
+      .join(',');
+
     /**
      * @type { Map<number, Entity> }
      */
     const updatedEntities = await this.getEntitiesFromDb(
       {
-        query: `SELECT * FROM \`${dbTable}\` WHERE \`id\` IN (?)`,
-        prepareParams: this.getInsertUpdateIds(selfChangeLogs),
+        query: `SELECT * FROM \`${dbTable}\` WHERE \`id\` IN (${insertUpdateIdsPrepareString})`,
+        prepareParams: insertUpdateIds,
         dbName,
       },
       this.constructor.entityName
@@ -159,15 +165,24 @@ export class List {
       switch (action) {
         case dbOperations.Insert:
           if (updatedEntities.has(entityId)) {
+            console.log(
+              `Insert ${this.constructor.entityName.name}: ${entityId}`
+            );
             await this.insertEntity(updatedEntities.get(entityId));
           }
           break;
         case dbOperations.Update:
           if (updatedEntities.has(entityId)) {
+            console.log(
+              `Update ${this.constructor.entityName.name}: ${entityId}`
+            );
             await this.updateEntity(updatedEntities.get(entityId));
           }
           break;
         case dbOperations.Delete:
+          console.log(
+            `Delete ${this.constructor.entityName.name}: ${entityId}`
+          );
           await this.deleteEntity(entityId);
           break;
       }
@@ -234,7 +249,7 @@ export class List {
     for (const entityDb of entitiesDb) {
       const newClass = new className().setDataFromDb(entityDb);
 
-      retMap.add(newClass.data.id, newClass);
+      retMap.set(newClass.data.id, newClass);
     }
 
     return retMap;

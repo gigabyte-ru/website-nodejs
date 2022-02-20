@@ -1,6 +1,5 @@
-import { CurrentSession } from '../classes/CurrentSession.js';
+import { CurrentSession, GlobalVariables, HostsList } from '../classes';
 import { runRouteHandlerFromUrl } from './runRouteHandlerFromUrl.js';
-import { globalVariables } from '../classes/GlobalVariables.js';
 import { translateTemplate } from './translateTemplate.js';
 
 /**
@@ -8,9 +7,13 @@ import { translateTemplate } from './translateTemplate.js';
  * @param req
  * @param res
  */
-export const processRoute = async (req, res, type = 'http') => {
-  console.log('Check host:', req.headers.host);
-  const host = globalVariables?.variables.hosts?.get(req.headers.host);
+export const processRoute = async (req, res) => {
+  const requestHost = req.headers.host;
+  console.log('Request host:', requestHost);
+
+  const host = await new HostsList().getByName(requestHost);
+
+  console.log('Host name:', host.data.name);
 
   if (!host) {
     res.statusCode = 404;
@@ -18,8 +21,7 @@ export const processRoute = async (req, res, type = 'http') => {
     return;
   }
 
-  console.log(host.name);
-  const currentSession = new CurrentSession(req, host, type);
+  const currentSession = new CurrentSession(req, host);
 
   const template = await runRouteHandlerFromUrl(currentSession);
 
@@ -31,16 +33,3 @@ export const processRoute = async (req, res, type = 'http') => {
   res.statusCode = 200;
   res.end(translateTemplate(template, currentSession));
 };
-
-// const receiveArgs = async (req) =>
-//   new Promise((resolve) => {
-//     const body = [];
-//     req
-//       .on('data', (chunk) => {
-//         body.push(chunk);
-//       })
-//       .on('end', async () => {
-//         const data = body.join('');
-//         resolve(data);
-//       });
-//   });

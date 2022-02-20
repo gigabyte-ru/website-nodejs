@@ -3,9 +3,9 @@
 import { GlobalVariables } from './classes';
 import { redis } from './utils';
 
-const globalVariablesParser = new GlobalVariables();
-//await globalVariablesParser.clearStorage();
-await globalVariablesParser.createIndexes();
-//await globalVariablesParser.init();
+const globalVariables = new GlobalVariables();
+await globalVariables.clearStorage();
+await globalVariables.createIndexes();
+await globalVariables.init();
 
 redis.quit().then();

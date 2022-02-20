@@ -99,8 +99,10 @@ export class GlobalVariables {
   }
 
   async init() {
-    console.log(`Start init at ${new Date().toLocaleString()}`);
-    await this.setUpdatedAt(await this.getUpdatedAtFromDb());
+    const updatedAtFromDb = await this.getUpdatedAtFromDb();
+    console.log(`Start init at ${updatedAtFromDb}`);
+
+    await this.setUpdatedAt(updatedAtFromDb);
 
     for (const entityList of Object.values(this.entitiesLists)) {
       await entityList.fill();
@@ -122,7 +124,15 @@ export class GlobalVariables {
    * @return {Promise<string>}
    */
   async getUpdatedAt() {
-    return await this.lib.get(GlobalVariables.UPDATED_AT);
+    const updatedAt = await this.lib.get(GlobalVariables.UPDATED_AT);
+    if (updatedAt && typeof updatedAt === 'string') {
+      const date = new Date(updatedAt);
+      return new Date(
+        date.getTime() - date.getTimezoneOffset() * 60 * 1000
+      ).toISOString();
+    }
+
+    return null;
   }
 
   /**
@@ -164,8 +174,6 @@ export class GlobalVariables {
   async runUpdateProcess() {
     const changeLogsEntities = await this.getLastChangeLogs();
 
-    console.log({ changeLogsEntities });
-
     if (changeLogsEntities?.length) {
       await this.setUpdatedAt(
         changeLogsEntities[changeLogsEntities.length - 1].updatedAt
@@ -183,6 +191,8 @@ export class GlobalVariables {
   async getLastChangeLogs() {
     const updatedAt = await this.getUpdatedAt();
 
+    console.log('LastChangeLogs: ', updatedAt);
+
     if (!updatedAt) {
       return null;
     }
@@ -193,6 +203,6 @@ export class GlobalVariables {
       dbName: GlobalVariables.dbName,
     });
 
-    return changeLogs.map((c) => new ChangeLog().setDataFromDb(c));
+    return changeLogs?.map((c) => new ChangeLog().setDataFromDb(c)) ?? [];
   }
 }

@@ -2,8 +2,8 @@ import { router } from '../router/router.js';
 
 /**
  * Find handler for URL and run it
- * @param url
- * @returns {null|string}
+ * @param { CurrentSession } currentSession
+ * @returns { Promise<null | string> }
  */
 export const runRouteHandlerFromUrl = async (currentSession) => {
   const routerWithRegexp = router.map((r) => ({

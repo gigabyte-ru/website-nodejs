@@ -9,7 +9,7 @@ const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
  * @typedef RedisLib
  * @type Object
  * @property { (indexesObject: Record<string, RedisIndexObject>) => Promise<RedisLib> } createIndexes
- * @property { (searchText: string) => Promise<Array<Entity.data>> } search
+ * @property { (searchText: string) => Promise<Entity.data[]> } search
  * @property { (key: string | number) => Promise<Boolean> } has
  * @property { (key: string | number, value: object | string | number) => Promise<this> } add
  * @property { (keyValues: Array<{ key: number|string, value: object|string|number }> ) => Promise<this> } multiAdd

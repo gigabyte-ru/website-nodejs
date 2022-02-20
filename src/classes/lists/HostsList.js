@@ -15,4 +15,18 @@ export class HostsList extends List {
       type: FieldTypes.NUMBER,
     },
   };
+
+  /**
+   * @param { string } hostName
+   * @return { Promise<Host | null> }
+   */
+  async getByName(hostName) {
+    const datas = await this.lib.search(`@name:${hostName}`);
+
+    if (datas.length) {
+      return new this.constructor.entityName().setDataFromMemory(datas[0]);
+    }
+
+    return null;
+  }
 }
