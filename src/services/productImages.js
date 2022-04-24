@@ -1,90 +1,73 @@
-import axios from 'axios';
 import { DB } from '../utils/db.js';
-import { getValueFromArgv } from '../utils';
+import getUrl from '../utils/getUrl.js';
 
-const hqUrl = 'https://global-test.gigabyte.com/json/ProductImages?id=';
+const HQ_URL = 'https://global-test.gigabyte.com/json/ProductImages?id=';
+
+const db = await DB().connect('u15821_products');
 
 /**
  * Get product images from HQ and save it into RU-db.
  * If productId === null then script will be get images from ALL products!
- * @param productId
  */
-export const getProductImages = async (productId = null) => {
-  const db = await DB().connect('u15821_products');
+export default async (product) => {
+  const finalUrl = `${HQ_URL}${product['original_id']}`;
+  console.log(product, finalUrl);
 
-  let productsQuery =
-    'SELECT `id`, `original_id` FROM `products` WHERE `original_id` > 0';
+  const response = await getUrl(finalUrl);
 
-  if (productId) {
-    productsQuery = `${productsQuery} AND \`id\` = '${productId}'`;
+  if (!response?.data) {
+    return;
   }
 
-  const products = await db.query(productsQuery);
+  const content = response?.data;
+  if (!content?.['Products']?.['FileData']) {
+    return;
+  }
 
-  for (const product of products) {
-    const finalUrl = `${hqUrl}${product['original_id']}`;
-    console.log(finalUrl);
+  const imagesForInsert = content['Products']['FileData'];
 
-    const response = await axios.get(finalUrl);
-    if (!response?.data) {
-      continue;
+  console.log('Images: ', imagesForInsert.length);
+
+  const prevImages = await db.query(
+    `SELECT * FROM \`product_images_originals\` WHERE \`product_id\` = ?`,
+    [product['id']]
+  );
+
+  for (const prevImage of prevImages) {
+    prevImage.isEqual = false;
+    const equalImageIndex = imagesForInsert.findIndex(
+      (i) => i?.['Path'] === prevImage['path']
+    );
+    if (equalImageIndex >= 0) {
+      prevImage.isEqual = true;
+      imagesForInsert.splice(equalImageIndex, 1);
     }
+  }
 
-    const content = response?.data;
-    if (!content?.['ProductsList']?.['FileData']) {
-      continue;
-    }
+  const imagesForDelete = prevImages
+    .filter((i) => !i.isEqual)
+    ?.map((i) => i.id);
 
-    const imagesForInsert = content?.['ProductsList']?.['FileData'];
-    const prevImages = await db.query(
-      `SELECT * FROM \`product_images_originals\` WHERE \`product_id\` = ?`,
-      [product['id']]
+  if (imagesForDelete.length) {
+    console.log('Delete images: ', imagesForDelete);
+
+    await db.query(
+      `DELETE FROM \`product_images_originals\` WHERE \`id\` IN (${imagesForDelete.join(
+        ','
+      )})`
+    );
+  }
+
+  for (const imageForInsert of imagesForInsert) {
+    const result = await db.query(
+      `INSERT INTO \`product_images_originals\` SET \`product_id\` = ?, \`extension\` = ?, \`path\` = ?`,
+      [product['id'], imageForInsert['Extension'], imageForInsert['Path']]
     );
 
-    for (const prevImage of prevImages) {
-      prevImage.isEqual = false;
-      const equalImageIndex = imagesForInsert.findIndex(
-        (i) => i?.['Path'] === prevImage['path']
+    if (result?.affectedRows) {
+      console.log(
+        `Image with path = '${imageForInsert['Path']}' was added to productId = '${product['id']}'`
       );
-      if (equalImageIndex >= 0) {
-        prevImage.isEqual = true;
-        imagesForInsert.splice(equalImageIndex, 1);
-      }
-    }
-
-    const imagesForDelete = prevImages
-      .filter((i) => !i.isEqual)
-      ?.map((i) => i.id);
-
-    if (imagesForDelete.length) {
-      console.log('Delete images ', imagesForDelete);
-
-      await db.query(
-        `DELETE FROM \`product_images_originals\` WHERE \`id\` IN (${imagesForDelete.join(
-          ','
-        )})`
-      );
-    }
-
-    for (const imageForInsert of imagesForInsert) {
-      const result = await db.query(
-        `INSERT INTO \`product_images_originals\` SET \`product_id\` = ?, \`extension\` = ?, \`path\` = ?`,
-        [product['id'], imageForInsert['Extension'], imageForInsert['Path']]
-      );
-
-      if (result?.affectedRows) {
-        console.log(
-          `Image with path = '${imageForInsert['Path']}' was added to productId = '${product['id']}'`
-        );
-      }
     }
   }
-
-  await db.disconnect();
 };
-
-const productId = getValueFromArgv('productId', (val) =>
-  Number.isInteger(+val) ? Number(val) : null
-);
-
-getProductImages(productId).then();
