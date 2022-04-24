@@ -5,10 +5,13 @@
   "main": "src/server.js",
   "type": "module",
   "lib": "es2021",
+  "bin": {
+    "gbt-product-memory": "src/bin/product-memory.js",
+    "gbt-product-images": "src/bin/product-images.js"
+  },
   "scripts": {
     "node": "node --es-module-specifier-resolution=node",
     "service:check": "npm run node src/services/checkGigabyteRU.js",
-    "service:images": "npm run node src/services/productImages.js",
     "service:triggers": "npm run node src/services/createAllTriggers.js",
     "site:server": "npm run node src/server.js",
     "site:init": "npm run node src/init.js",
