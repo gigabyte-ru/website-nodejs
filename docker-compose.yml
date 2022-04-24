@@ -5,6 +5,6 @@ services:
     image: redislabs/rejson:latest
     container_name: redisjson
     restart: always
-    command: redis-server --loadmodule /usr/lib/redis/modules/rejson.so --loadmodule /usr/lib/redis/modules/redisearch.so --requirepass PASSPORT-FROM-ENV
+    command: redis-server --loadmodule /usr/lib/redis/modules/rejson.so --loadmodule /usr/lib/redis/modules/redisearch.so --requirepass ${REDIS_PASSWORD}
     ports:
       - "6379:6379"
