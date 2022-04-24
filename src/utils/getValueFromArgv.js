@@ -1,4 +1,4 @@
-export const getValueFromArgv = (name, filterFn = (arg) => arg) => {
+export default (name, filterFn = (arg) => arg) => {
   const args = process.argv;
 
   let trap = false;

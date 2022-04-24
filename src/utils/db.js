@@ -4,16 +4,21 @@ import dotenv from 'dotenv';
 dotenv.config();
 export const DB = () => {
   let connection = null;
+  let error = null;
 
   const db = {
     async connect(DB_DATABASE = 'u15821_global') {
-      connection = await mysql.createConnection({
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        database: DB_DATABASE,
-        password: process.env.DB_PASS,
-        port: process.env.DB_PORT,
-      });
+      try {
+        connection = await mysql.createConnection({
+          host: process.env.DB_HOST,
+          user: process.env.DB_USER,
+          database: DB_DATABASE,
+          password: process.env.DB_PASS,
+          port: process.env.DB_PORT,
+        });
+      } catch(e) {
+        error = e
+      }
 
       return db;
     },
@@ -21,14 +26,26 @@ export const DB = () => {
       return await connection?.end();
     },
     async query(query, prepareParams = []) {
-      const result = await connection.execute(query, prepareParams);
+      try {
+        const result = await connection?.execute(query, prepareParams);
 
-      return result[0];
+        return result[0];
+      } catch(e) {
+        error = e
+      }
+
+      return null;
     },
     async queryWithoutPrepare(query) {
-      const result = await connection.query(query);
+      try {
+        const result = await connection?.query(query);
 
-      return result[0];
+        return result[0];
+      } catch(e) {
+        error = e
+      }
+
+      return null;
     },
   };
 
