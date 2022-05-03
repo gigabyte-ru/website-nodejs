@@ -25,6 +25,12 @@ import {
   ProductsList,
   SocketsList,
 } from './lists';
+import { MemoryHasSpecHasPropList } from './lists/MemoryHasSpecHasPropList';
+import { MemoryList } from './lists/MemoryList';
+import { MemorySpecPropsList } from './lists/MemorySpecPropsList';
+import { MemorySpecsList } from './lists/MemorySpecsList';
+import { MemorySummariesList } from './lists/MemorySummariesList';
+import { ProductHasMemoryList } from './lists/ProductHasMemoryList';
 
 dotenv.config();
 
@@ -45,10 +51,16 @@ dotenv.config();
  * @property { HostsList } hostsList
  * @property { HtmlBlocksList } htmlBlocksList
  * @property { LangsList } langsList
+ * @property { MemoryHasSpecHasPropList } memoryHasSpecHasPropList
+ * @property { MemoryList } memoryList
+ * @property { MemorySpecPropsList } memorySpecPropsList
+ * @property { MemorySpecsList } memorySpecsList
+ * @property { MemorySummariesList } memorySummariesList
  * @property { OsList } osList
  * @property { ProductHasCpuList } productHasCpuList
  * @property { ProductHasFilesList } productHasFilesList
  * @property { ProductHasHtmlBlocksList } productHasHtmlBlocksList
+ * @property { ProductHasMemoryList } productHasMemoryList
  * @property { ProductImagesList } productImagesList
  * @property { ProductsList } productsList
  * @property { SocketsList } socketsList
@@ -81,10 +93,16 @@ export class GlobalVariables {
     hostsList: new HostsList(),
     htmlBlocksList: new HtmlBlocksList(),
     langsList: new LangsList(),
+    memoryHasSpecHasPropList: new MemoryHasSpecHasPropList(),
+    memoryList: new MemoryList(),
+    memorySpecPropsList: new MemorySpecPropsList(),
+    memorySpecsList: new MemorySpecsList(),
+    memorySummariesList: new MemorySummariesList(),
     osList: new OsList(),
     productHasCpuList: new ProductHasCpuList(),
     productHasFilesList: new ProductHasFilesList(),
     productHasHtmlBlocksList: new ProductHasHtmlBlocksList(),
+    productHasMemoryList: new ProductHasMemoryList(),
     productImagesList: new ProductImagesList(),
     productsList: new ProductsList(),
     socketsList: new SocketsList(),

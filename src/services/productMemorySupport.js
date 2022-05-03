@@ -6,7 +6,7 @@ const HQ_URL = 'https://global-test.gigabyte.com/Json/MemorySupport?productid=';
 const db = await DB().connect('u15821_products');
 
 const getTableSummaryId = async (summaryText) => {
-  const SUMMARY_TABLE = 'product_memory_summaries';
+  const SUMMARY_TABLE = 'memory_summaries';
 
   const query = `SELECT \`id\` FROM ${SUMMARY_TABLE} WHERE \`name\` = ?`;
   
@@ -141,11 +141,10 @@ const getMemoryId = async (columns, headers) => {
   return memoryId;
 }
 
-
 const updateProductMemorySummary = async (productId, memorySummaryId) => {
   const PRODUCTS_TABLE = 'products';
 
-  const query = `UPDATE \`${PRODUCTS_TABLE}\` SET \`product_memory_summary_id\` = ? WHERE \`id\` = ?`;
+  const query = `UPDATE \`${PRODUCTS_TABLE}\` SET \`memory_summary_id\` = ? WHERE \`id\` = ?`;
   await db.query(query, [memorySummaryId, productId]);
 }
 
@@ -155,11 +154,19 @@ const updateProductMemory = async (productId, memoryId) => {
   const query = `SELECT * FROM \`${PRODUCT_MEMORY_TABLE}\` WHERE \`product_id\` = ? AND \`memory_id\` = ?`;
   const productMemory = await db.query(query, [productId, memoryId]);
 
-  if (!productMemory) {
+  if (!productMemory.length) {
     console.log('Add memory to product');
     const query = `INSERT INTO \`${PRODUCT_MEMORY_TABLE}\` SET \`product_id\` = ?, \`memory_id\` = ?`;
     await db.query(query, [productId, memoryId]);
   }
+}
+
+const unlinkMemoryNotIncludedIn = async (productId, includedIds) => {
+  const PRODUCT_MEMORY_TABLE = 'product_memories';
+
+  const query = `DELETE FROM \`${PRODUCT_MEMORY_TABLE}\` WHERE \`product_id\` = ? AND \`memory_id\` NOT IN (${includedIds.join(',')})`;
+
+  await db.query(query, [productId]);
 }
 
 /**
@@ -192,8 +199,13 @@ export default async (product) => {
 
   const headers = await getHeaders(tableHeaders);
 
+  const memoriesIds = []
+
   for (const row of tableRows) {
     const memoryId = await getMemoryId(row['Columns'], headers);
+    memoriesIds.push(memoryId);
     await updateProductMemory(product['id'], memoryId);
   }
+
+  await unlinkMemoryNotIncludedIn(product['id'], memoriesIds);
 }

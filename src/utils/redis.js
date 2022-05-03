@@ -77,8 +77,12 @@ const Redis = async function () {
       },
 
       async search(searchText) {
+        console.log(searchKey, searchText);
         try {
-          const searchData = await client.ft.search(searchKey, searchText);
+          const searchData = await client.ft.search(searchKey, searchText, { LIMIT: {
+            from: 0,
+            size: 1000000
+          } });
 
           if (searchData?.documents.length) {
             return searchData.documents.map((d) => d.value);
@@ -111,8 +115,8 @@ const Redis = async function () {
 
       async multiAdd(keyValues) {
         try {
-          const promises = keyValues.map((o) =>
-            client.json.set(getFullKey(o.key), '$', getObjectFromValue(o.value))
+          const promises = keyValues.map(({ key, value }) =>
+            client.json.set(getFullKey(key), '$', getObjectFromValue(value))
           );
           await Promise.all(promises);
         } catch (e) {
