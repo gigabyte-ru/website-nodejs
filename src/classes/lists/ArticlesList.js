@@ -29,11 +29,15 @@ export class ArticlesList extends List {
   async getTranslation(langId, articleOrAlias) {
     let searchText = `@langId:[${langId} ${langId}]`;
 
-    if (Number.isInteger(articleOrAlias)) {
+    const number = Number(articleOrAlias);
+
+    if (Number.isInteger(number)) {
       searchText += ` (@articleId:[${articleOrAlias} ${articleOrAlias}] | @alias:${articleOrAlias})`;
     } else {
       searchText += ` @alias:${articleOrAlias}`;
     }
+
+    console.log({ searchText });
 
     const data = await this.lib.search(searchText);
 

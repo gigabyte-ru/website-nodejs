@@ -1,25 +1,36 @@
-export const translateTemplate = (templateString, currentSession) => {
-  return templateString.replace(/\[#(.+?)#\]/g, (...args) => {
-    const { translations } = currentSession;
-    const alias = args[1].split('.');
+import { asyncReplace } from "./asyncReplace";
 
-    const aliasKey = alias[0];
+/**
+ * @param { string } templateString 
+ * @param { CurrentSession } currentSession 
+ * @returns 
+ */
+export const translateTemplate = async (templateString, currentSession) => {
+  return await asyncReplace(templateString, /\[#(.+?)#\]/g, 
+      async (...args) => {
+        const { articlesList, host: { data: { firstLangId, secondLangId, defaultLangId } } } = currentSession;
 
-    const translation = translations.first.has(aliasKey)
-      ? translations.first.get(aliasKey)
-      : translations.second.has(aliasKey)
-      ? translations.second.get(aliasKey)
-      : translations.default.has(aliasKey)
-      ? translations.default.get(aliasKey)
-      : null;
+        const alias = args[1].split('.');
 
-    if (translation) {
-      if (alias[1]) {
-        return translation[alias[1]];
+        const aliasKey = alias[0];
+
+        let translation = await articlesList.getTranslation(firstLangId, aliasKey);
+
+        if (!translation) {
+          translation = await articlesList.getTranslation(secondLangId, aliasKey);
+        }
+        if (!translation) {
+          translation = await articlesList.getTranslation(defaultLangId, aliasKey);
+        }
+
+        if (translation) {
+          if (alias[1]) {
+            return translation.data[alias[1]];
+          }
+          return translation.data['name'];
+        }
+
+        return args[0];
       }
-      return translation['name'];
-    }
-
-    return args[0];
-  });
+  );
 };

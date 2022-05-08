@@ -12,7 +12,7 @@ export class HostsList extends List {
    */
   static searchIndexes = {
     name: {
-      type: FieldTypes.NUMBER,
+      type: FieldTypes.STRING,
     },
   };
 

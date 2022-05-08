@@ -1,4 +1,11 @@
+import { ArticlesList } from "./lists";
+
 export class CurrentSession {
+  route = null
+  category = null
+
+  articlesList = new ArticlesList()
+
   constructor(req, host, connectionType) {
     const [path, query] = req.url.split('?');
     const defaultLangId = 1;
@@ -7,8 +14,6 @@ export class CurrentSession {
       path,
       query: new URLSearchParams(query),
     };
-
-    console.log(this.url);
 
     this.host = host;
   }

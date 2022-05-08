@@ -8,7 +8,7 @@ dotenv.config();
 
 bootstrapServer(http.createServer(), process.env.SERVER_HTTP_PORT).then();
 
-bootstrapServer(https.createServer(), process.env.SERVER_HTTPS_PORT).then();
+// bootstrapServer(https.createServer(), process.env.SERVER_HTTPS_PORT).then();
 
 /**
  * @param server
@@ -16,16 +16,28 @@ bootstrapServer(https.createServer(), process.env.SERVER_HTTPS_PORT).then();
  * @return { Promise<void> }
  */
 async function bootstrapServer(server, PORT) {
-  server.listen(PORT);
-  events.once(server, 'listening').then(async () => {
+  // events.once(server, 'listening').then(async () => {
+  //   console.log(`Server running at http://localhost:${PORT}/`);
+
+  //   for await (const [err] of events.on(server, 'error')) {
+  //     console.error(err);
+  //   }
+
+  //   for await (const [req, res] of events.on(server, 'request')) {
+  //     console.log(req)
+  //     res.write('hello\n');
+  //     res.end();
+  //     //processRoute(req, res).then();
+  //   }
+  // });
+  
+  server.on('listening', () => {
     console.log(`Server running at http://localhost:${PORT}/`);
+  })
 
-    for await (const [err] of events.on(server, 'error')) {
-      console.error(err);
-    }
+  server.on('request', async (req, res) => {
+    await processRoute(req, res);
+  })
 
-    for await (const [req, res] of events.on(server, 'request')) {
-      processRoute(req, res).then();
-    }
-  });
+  server.listen(PORT);
 }
