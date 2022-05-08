@@ -57,6 +57,8 @@ export const productMemoriesTable = async (currentSession) => {
       concatDiff(acc.headers, createdMemory.headers, (a, b) => a.specId === b.specId);
       acc.items.push(createdMemory.item);
 
+      acc.headers.sort((a, b) => { a.sorder - b.sorder });
+
       return acc;
     },
     defaultMemories

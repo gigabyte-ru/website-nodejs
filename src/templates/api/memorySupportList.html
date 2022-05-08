@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://unpkg.com/vue@3"></script>
+</head>
+<body>
+  <div id="app">
+    <div v-if="state.loading">loading...</div>
+    <div v-else>
+      <div>
+        <div v-for="header in filterHeaders">{{ header.name }}</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const { createApp, setup, reactive } = Vue
+  
+    createApp({
+      setup() {
+        const hello = "Hello";
+
+        let headers = null;
+        let items = null;
+
+        const state = reactive({ 
+          loading: true, 
+          filteredList: null
+        });
+
+        const filterHeaders = computed(() => {
+          return headers.map(h => h);
+        })
+
+        const filterItems = computed(() => {
+          return items.map(h => h);
+        })
+
+        fetch('http://localhost:3020/api/getProductMemories/8757').then((data) => {
+          headers = data.headers;
+          items = data.items;
+        }).catch((e) => {
+          console.error(e);
+        }).finally(() => {
+          state.loading = false;
+        })
+
+
+        // expose the state to the template
+        return {
+          state,
+          hello
+        }
+      }
+    }).mount('#app')
+  </script>
+</body>
+</html>
