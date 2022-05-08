@@ -33,13 +33,13 @@ export const productMemoriesTable = async (currentSession) => {
         (accChild, mChild) => {
           const { headers, item } = accChild;
 
-          const { data: { id: specId, name: specName, sorder }, parent } = mChild.memorySpec
+          const { data: { id: specId, name, sorder }, parent } = mChild.memorySpec
 
           const parentName = parent?.data.name ?? null
 
           headers.push({
             specId,
-            specName,
+            name,
             parentName,
             sorder
           });
@@ -55,14 +55,17 @@ export const productMemoriesTable = async (currentSession) => {
       );
 
       concatDiff(acc.headers, createdMemory.headers, (a, b) => a.specId === b.specId);
-      acc.items.push(createdMemory.item);
 
-      acc.headers.sort((a, b) => { a.sorder - b.sorder });
+      acc.items.push(createdMemory.item);
 
       return acc;
     },
     defaultMemories
   ) ?? defaultMemories;
+
+  createdMemories.headers.sort((a, b) => { a.sorder - b.sorder });
+
+  createdMemories.memorySummary = product.memorySummary?.data?.name ?? '';
 
   return JSON.stringify(createdMemories, null, '  ');
 

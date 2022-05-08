@@ -10,50 +10,98 @@
 <body>
   <div id="app">
     <div v-if="state.loading">loading...</div>
-    <div v-else>
-      <div>
-        <div v-for="header in filterHeaders">{{ header.name }}</div>
-      </div>
+    <div class="memories-list" v-else>
+      <table class="memories-list__table">
+        <tr>
+          <th v-for="header in filterHeaders.firstRows" :colspan="header.colspan" :rowspan="header.rowspan">{{ header.name }}</th>
+        </tr>
+        <tr>
+          <th v-for="header in filterHeaders.secondRows" :colspan="header.colspan" :rowspan="header.rowspan">{{ header.name }}</th>
+        </tr>
+        <tr v-for="item in filterItems">
+          <td v-for="key in filterHeaders.keys">{{ item[key] }}</td>
+        </tr>
+      </table>
+      <div v-html="state.memorySummary" />
     </div>
   </div>
   <script>
-    const { createApp, setup, reactive } = Vue
+    const { createApp, setup, reactive, computed } = Vue
   
+    const recreateHeaders = (headers) => {
+          const firstRows = [];
+          const secondRows = [];
+          const keys = [];
+          for (let i = 0; i < headers.length; i += 1) {
+            const current = headers[i];
+            if (!current.parentName) {
+              firstRows.push({ ...current, colspan: 1, rowspan: 2 });
+            } else {
+              const prev = headers[i-1];
+              if (prev.parentName === current.parentName) {
+                firstRows[firstRows.length-1].colspan += 1;
+              } else {
+                firstRows.push({ name: current.parentName, colspan: 1, rowspan: 1 });
+              }
+              secondRows.push({ ...current, colspan: 1, rowspan: 1 })
+            }
+            keys.push(current.specId);
+          }
+
+          return {
+            firstRows,
+            secondRows,
+            keys
+          }
+        }
+
     createApp({
       setup() {
-        let headers = null;
-        let items = null;
+        let headers = [];
+        let items = [];
 
         const state = reactive({ 
           loading: true, 
-          filteredList: null
+          memorySummary: '',
         });
 
         const filterHeaders = computed(() => {
-          return headers.map(h => h);
-        })
+          return recreateHeaders(headers);
+        });
 
         const filterItems = computed(() => {
-          return items.map(h => h);
-        })
+          return items.map((item) => item);
+        });
 
-        fetch('http://localhost:3020/api/getProductMemories/8757').then((data) => {
-          headers = data.headers;
-          items = data.items;
-        }).catch((e) => {
-          console.error(e);
-        }).finally(() => {
-          state.loading = false;
-        })
+        (async () => {
+          try {
+            const response = await fetch('http://localhost:3020/api/getProductMemories/8757');
+            if (response.ok) {
+              const json = await response.json();
 
+              console.log(json);
+              headers = json.headers;
+              items = json.items;
+              state.memorySummary = json.memorySummary;
+            }
+          } catch(e) {
+            console.error(e);
+          } finally {
+            state.loading = false;
+          }
+        })();
 
-        // expose the state to the template
         return {
           state,
-          hello
+          filterHeaders,
+          filterItems,
         }
       }
     }).mount('#app')
   </script>
+  <style>
+    .memories-list__table {
+    }
+  </style>
 </body>
 </html>
