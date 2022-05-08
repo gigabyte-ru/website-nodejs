@@ -42,6 +42,8 @@ export class MemoryHasSpecHasProp extends Entity {
 
   async setLinksEntities() {
     this.memorySpec = await new MemorySpecsList().get(this.data.memorySpecId);
+    await this.memorySpec.setParent();
+
     this.memorySpecProp = await new MemorySpecPropsList().get(
       this.data.memorySpecPropId
     );

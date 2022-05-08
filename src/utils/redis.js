@@ -77,7 +77,6 @@ const Redis = async function () {
       },
 
       async search(searchText) {
-        console.log(searchKey, searchText);
         try {
           const searchData = await client.ft.search(searchKey, searchText, { LIMIT: {
             from: 0,

@@ -1,4 +1,5 @@
 import { Entity } from './Entity';
+import { MemorySpecsList } from '../lists/MemorySpecsList';
 
 export class MemorySpec extends Entity {
   /**
@@ -17,6 +18,11 @@ export class MemorySpec extends Entity {
   data = {};
 
   /**
+   * @type { MemorySpec }
+   */
+  parent = null
+
+  /**
    * @return { MemorySpec }
    */
   setDataFromDb(entityFromDb) {
@@ -28,5 +34,12 @@ export class MemorySpec extends Entity {
     this.data.sorder = entityFromDb['sorder'];
 
     return this;
+  }
+
+  async setParent() {
+    const parentId = this.data.parentId;
+    if (parentId) {
+      this.parent = await new MemorySpecsList().get(parentId);
+    }
   }
 }

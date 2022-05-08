@@ -74,6 +74,11 @@ export class Product extends Entity {
     return this;
   }
 
+  async setMemorySummary() {
+    this.memorySummary = await new MemorySummariesList().get(this.data.memorySummaryId);
+    return this;
+  }
+
   async setImages() {
     this.imagesList = await new ProductImagesList().getEntitiesByProduct(
       this.data.id
@@ -85,11 +90,6 @@ export class Product extends Entity {
     this.filesList = await new ProductHasFilesList().getEntitiesByProduct(
       this.data.id
     );
-    return this;
-  }
-
-  async setMemorySummary() {
-    this.memorySummary = await new MemorySummariesList().get(this.data.memorySummaryId);
     return this;
   }
 }
