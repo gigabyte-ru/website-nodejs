@@ -5,102 +5,214 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <script src="https://unpkg.com/vue@3"></script>
 </head>
 <body>
-  <div id="app">
-    <div v-if="state.loading">loading...</div>
-    <div class="memories-list" v-else>
-      <table class="memories-list__table">
-        <tr>
-          <th v-for="header in filterHeaders.firstRows" :colspan="header.colspan" :rowspan="header.rowspan">{{ header.name }}</th>
-        </tr>
-        <tr>
-          <th v-for="header in filterHeaders.secondRows" :colspan="header.colspan" :rowspan="header.rowspan">{{ header.name }}</th>
-        </tr>
-        <tr v-for="item in filterItems">
-          <td v-for="key in filterHeaders.keys">{{ item[key] }}</td>
-        </tr>
-      </table>
-      <div v-html="state.memorySummary" />
-    </div>
-  </div>
-  <script>
-    const { createApp, setup, reactive, computed } = Vue
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <link href="https://www.gigabyte.com/Assets/Gulp/css/Pages/Area/Ajax/Product/MemorySupport/SupportList.min.css?v=202204251130" rel="stylesheet" />
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
   
-    const recreateHeaders = (headers) => {
-          const firstRows = [];
-          const secondRows = [];
-          const keys = [];
-          for (let i = 0; i < headers.length; i += 1) {
-            const current = headers[i];
-            if (!current.parentName) {
-              firstRows.push({ ...current, colspan: 1, rowspan: 2 });
-            } else {
-              const prev = headers[i-1];
-              if (prev.parentName === current.parentName) {
-                firstRows[firstRows.length-1].colspan += 1;
-              } else {
-                firstRows.push({ name: current.parentName, colspan: 1, rowspan: 1 });
-              }
-              secondRows.push({ ...current, colspan: 1, rowspan: 1 })
-            }
-            keys.push(current.specId);
-          }
-
-          return {
-            firstRows,
-            secondRows,
-            keys
-          }
+  <div id="product-memory-list" data-app="product-memory-list" class="memory-support-table-wrapper active">
+    <div v-if="loading">loading...</div>
+    <div v-else class="memories-list">
+      <div class="memory-support-table-body">
+        <table class="memories-list__table">
+          <tr>
+            <th v-for="header in headers.firstRows" :colspan="header.colspan" :rowspan="header.rowspan">
+              <div>{{ header['name'] }}</div>
+              <v-autocomplete
+                v-if="header['specId']"
+                v-model="headers['keys'][header.specId]['model']"
+                :items="headers['keys'][header.specId]['values']"
+                label=""
+                dense
+                filled
+                multiple
+                solo
+                @input="filterTable(header.specId)"
+              ></v-autocomplete>
+            </th>
+          </tr>
+          <tr>
+            <th v-for="header in headers.secondRows" :colspan="header.colspan" :rowspan="header.rowspan">{{ header['name'] }}</th>
+          </tr>
+          <tr v-for="item in paginationItems" class="item">
+            <td v-for="(_, key) in headers['keys']">{{ item[key] }}</td>
+          </tr>
+        </table>
+        <div v-if="!paginationItems.length" class="empty-table">[#not_found_any_items#]</div>
+        <div v-if="!isShowAll" class="memories-list__more-button" @click="showMore">[#show_more#]([#ag_left#]hiddenCount[#ag_right#])...</div>
+      </div>
+  
+    </div>
+    <div class="memories-list__summary" v-html="memorySummary"></div>
+  </div>
+  
+  <script>
+  const { createApp } = Vue
+  
+  const recreateHeaders = (headers) => {
+    const firstRows = [];
+    const secondRows = [];
+    const keys = {};
+    for (let i = 0; i < headers.length; i += 1) {
+      const current = headers[i];
+      if (!current.parentName) {
+        firstRows.push({ ...current, colspan: 1, rowspan: 2 });
+      } else {
+        const prev = headers[i-1];
+        if (prev.parentName === current.parentName) {
+          firstRows[firstRows.length-1].colspan += 1;
+        } else {
+          firstRows.push({ name: current.parentName, colspan: 1, rowspan: 1 });
         }
-
-    createApp({
-      setup() {
-        let headers = [];
-        let items = [];
-
-        const state = reactive({ 
-          loading: true, 
-          memorySummary: '',
-        });
-
-        const filterHeaders = computed(() => {
-          return recreateHeaders(headers);
-        });
-
-        const filterItems = computed(() => {
-          return items.map((item) => item);
-        });
-
-        (async () => {
-          try {
-            const response = await fetch('http://localhost:3020/api/getProductMemories/8757');
-            if (response.ok) {
-              const json = await response.json();
-
-              console.log(json);
-              headers = json.headers;
-              items = json.items;
-              state.memorySummary = json.memorySummary;
-            }
-          } catch(e) {
-            console.error(e);
-          } finally {
-            state.loading = false;
-          }
-        })();
-
-        return {
-          state,
-          filterHeaders,
-          filterItems,
-        }
+        secondRows.push({ ...current, colspan: 1, rowspan: 1 })
       }
-    }).mount('#app')
+      keys[current.specId] = {
+        model: [],
+        values: []
+      };
+    }
+
+    return {
+      firstRows,
+      secondRows,
+      keys
+    }
+  }
+  
+  const PAGINATION_COUNT = 100;
+  let headers = [];
+  let items = [];
+
+  new Vue({
+    el: '#product-memory-list',
+    vuetify: new Vuetify(),
+    data() {
+      return {
+        headers: [],
+        items: [],
+        loading: true, 
+        memorySummary: '',
+        showCount: PAGINATION_COUNT,
+      }
+    },
+    computed: {
+      filterItems() {
+        const { keys } = this.headers
+
+        return this.items.filter(item => {
+          for (const [key, value] of Object.entries(item)) {
+            if (keys[key].model.length && !keys[key].model.includes(value)) {
+              return false;
+            }
+          }
+
+          return true;
+        });
+      },
+      paginationItems() {
+        return this.filterItems.slice(0, this.showCount);
+      },
+      isShowAll() {
+        return this.showCount >= this.filterItems.length;
+      },
+      hiddenCount() {
+        const count = this.filterItems.length - this.showCount
+        return count > 0 ? count : 0;
+      }
+    },
+    methods: {
+      showMore() {
+        this.showCount += PAGINATION_COUNT;
+      },
+      filterTable() {
+        this.showCount = PAGINATION_COUNT;
+      }
+    },
+    created() {
+      fetch('/api/getProductMemories/8720').then(response => {
+        if (response.ok) {
+            response.json().then(json => {
+              this.headers = recreateHeaders(json.headers);
+              this.items = json.items;
+              this.memorySummary = json.memorySummary;
+              const sets = {};
+              for (const item of this.items) {
+                for (const [key, value] of Object.entries(item)) {
+                  if (!Object.hasOwn(sets, key)) {
+                    sets[key] = new Set();
+                  }
+                  sets[key].add(value);
+                }
+              }
+              console.log(sets);
+              for (const [key, set] of Object.entries(sets)) {
+                this.headers.keys[key].values = Array.from(set);
+              }
+            }).finally(() => {
+              this.loading = false;
+            })
+          }
+      }).catch(e => {
+        console.error(e);
+      })
+    }
+  })
   </script>
-  <style>
-    .memories-list__table {
+  
+  <style type="text/css">
+
+    .memories-list {
+      width: calc(100vw - 160px);
+    }
+  
+    .memory-support-table-body {
+      overflow-x: scroll;
+    }
+  
+    .memories-list__table td,
+    .memories-list__table th {
+      white-space: nowrap;
+      padding: 15px 10px;
+    }
+  
+    .memories-list__table th {
+      text-align: center;
+    }
+  
+    .memories-list__table tr.item {
+      font-size: 90%;
+    }
+  
+    .memories-list__table tr.item:nth-child(odd) {
+      background: #1f1f1f;
+    }
+  
+    .memories-list__summary {
+      padding: 20px;
+      font-size: 80%;
+      background: #1f1f1f;
+    }
+
+    .memories-list__more-button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .empty-table {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      font-size: 110%;
     }
   </style>
 </body>

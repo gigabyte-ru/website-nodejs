@@ -39,7 +39,7 @@ export const productMemoriesTable = async (currentSession) => {
 
           const { data: { id: specId, name, sorder }, parent } = mChild.memorySpec
 
-          const parentName = parent?.data.name ?? null
+          const parentName = parent?.data?.name ?? null
 
           headers.push({
             specId,

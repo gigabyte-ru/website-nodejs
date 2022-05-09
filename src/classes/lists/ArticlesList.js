@@ -37,8 +37,6 @@ export class ArticlesList extends List {
       searchText += ` @alias:${articleOrAlias}`;
     }
 
-    console.log({ searchText });
-
     const data = await this.lib.search(searchText);
 
     if (data.length) {
