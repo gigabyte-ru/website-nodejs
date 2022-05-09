@@ -11,7 +11,7 @@ const articles = new ArticlesList();
 const hostList = new HostsList();
 
 (async () => {
-  const host = await hostList.getByName('gigabyte.ru');
+  const host = await hostList.getByName('yorik.gigabyte.data.com');
   console.dir(host, { depth: null });
 
   // const product = await productsList.get(8763);
