@@ -17,15 +17,19 @@ export const productMemoriesTable = async (currentSession) => {
 
   const productsList = new ProductsList();
 
-  const product = await productsList.get(productId);
-  await product.setMemories();
-  await product.setMemorySummary();
-
   const defaultMemories = {
     headers: [],
     items: []
   }
 
+  const product = await productsList.get(productId);
+
+  if (!product) {
+    return JSON.stringify(defaultMemories, null, '  ');
+  }
+
+  await product.setMemories();
+  await product.setMemorySummary();
 
   const createdMemories = product.memoryList?.reduce(
     (acc, m) => {
