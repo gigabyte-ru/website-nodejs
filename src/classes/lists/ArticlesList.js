@@ -32,7 +32,7 @@ export class ArticlesList extends List {
     const number = Number(articleOrAlias);
 
     if (Number.isInteger(number)) {
-      searchText += ` (@articleId:[${articleOrAlias} ${articleOrAlias}] | @alias:${articleOrAlias})`;
+      searchText += ` (@articleId:[${articleOrAlias} ${articleOrAlias}] | (@alias:${articleOrAlias}))`;
     } else {
       searchText += ` @alias:${articleOrAlias}`;
     }

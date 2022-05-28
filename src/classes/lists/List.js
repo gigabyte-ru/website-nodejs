@@ -50,7 +50,7 @@ export class List {
     /**
      * @type { RedisLib }
      */
-    this.lib = redis.lib(this.libKey);
+    this.lib = redis.lib(this.libKey, this.constructor.searchIndexes);
   }
 
   selectQuery() {

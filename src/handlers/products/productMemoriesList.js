@@ -1,4 +1,4 @@
-import { ProductsList } from "../../classes";
+import { ProductsList } from "../../classes/lists/ProductsList";
 
 
 const concatDiff = (arr, arrWithDiff, concatFn) => {

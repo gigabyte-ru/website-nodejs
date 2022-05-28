@@ -1,36 +1,35 @@
 import dotenv from 'dotenv';
 
 import { getDataFromDb, redis } from '../utils';
-import { ChangeLog } from './entities';
-import {
-  ArticlesList,
-  CategoriesList,
-  CountriesList,
-  CpuHasSpecHasPropList,
-  CpuList,
-  CpuSpecPropsList,
-  CpuSpecsList,
-  FileGroupsList,
-  FileHasOsList,
-  FilesList,
-  FileTypesList,
-  HostsList,
-  HtmlBlocksList,
-  LangsList,
-  OsList,
-  ProductHasCpuList,
-  ProductHasFilesList,
-  ProductHasHtmlBlocksList,
-  ProductImagesList,
-  ProductsList,
-  SocketsList,
-} from './lists';
+import { ChangeLog } from './entities/ChangeLog';
+import { SocketsList } from './lists/SocketsList';
+import { ProductsList } from './lists/ProductsList';
+import { LangsList } from './lists/LangsList';
+import { CountriesList } from './lists/CountriesList';
+import { ArticlesList } from './lists/ArticlesList';
+import { CategoriesList } from './lists/CategoriesList';
 import { MemoryHasSpecHasPropList } from './lists/MemoryHasSpecHasPropList';
 import { MemoryList } from './lists/MemoryList';
 import { MemorySpecPropsList } from './lists/MemorySpecPropsList';
 import { MemorySpecsList } from './lists/MemorySpecsList';
 import { MemorySummariesList } from './lists/MemorySummariesList';
 import { ProductHasMemoryList } from './lists/ProductHasMemoryList';
+import { TemplatesList } from './lists/TemplatesList';
+import { CpuHasSpecHasPropList } from './lists/CpuHasSpecHasPropList';
+import { CpuList } from './lists/CpuList';
+import { CpuSpecPropsList } from './lists/CpuSpecPropsList';
+import { CpuSpecsList } from './lists/CpuSpecsList';
+import { FileGroupsList } from './lists/FileGroupsList';
+import { FileHasOsList } from './lists/FileHasOsList';
+import { FilesList } from './lists/FilesList';
+import { FileTypesList } from './lists/FileTypesList';
+import { HostsList } from './lists/HostsList';
+import { HtmlBlocksList } from './lists/HtmlBlocksList';
+import { OsList } from './lists/OsList';
+import { ProductHasHtmlBlocksList } from './lists/ProductHasHtmlBlocksList';
+import { ProductHasCpuList } from './lists/ProductHasCpuList';
+import { ProductHasFilesList } from './lists/ProductHasFilesList';
+import { ProductImagesList } from './lists/ProductImagesList';
 
 dotenv.config();
 
@@ -64,6 +63,7 @@ dotenv.config();
  * @property { ProductImagesList } productImagesList
  * @property { ProductsList } productsList
  * @property { SocketsList } socketsList
+ * @property { TemplatesList } templatesList 
  */
 
 export class GlobalVariables {
@@ -106,6 +106,7 @@ export class GlobalVariables {
     productImagesList: new ProductImagesList(),
     productsList: new ProductsList(),
     socketsList: new SocketsList(),
+    templatesList: new TemplatesList(),
   };
 
   runUpdate() {

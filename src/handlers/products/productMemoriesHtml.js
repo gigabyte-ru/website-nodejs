@@ -1,4 +1,4 @@
-import { GlobalVariables } from "../../classes";
+import { GlobalVariables } from "../../classes/GlobalVariables";
 import { readTemplateFile } from "../../utils";
 
 export default async (currentSession) => {

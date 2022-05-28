@@ -29,7 +29,7 @@ export class CategoriesList extends List {
    */
   async getByAlias(aliasName) {
     const datas = await this.lib.search(
-      `@alias:${aliasName} | @originalAlias:${aliasName}`
+      `(@alias:${aliasName}) | (@originalAlias:${aliasName})`
     );
 
     if (datas.length) {

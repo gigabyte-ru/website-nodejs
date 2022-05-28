@@ -1,10 +1,6 @@
-import { ArticlesList } from "./lists";
-
 export class CurrentSession {
   route = null
   category = null
-
-  articlesList = new ArticlesList()
 
   constructor(req, host, connectionType) {
     const [path, query] = req.url.split('?');

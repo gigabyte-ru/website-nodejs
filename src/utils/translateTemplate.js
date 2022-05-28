@@ -1,4 +1,5 @@
 import { asyncReplace } from "./asyncReplace";
+import { ArticlesList } from "../classes/lists/ArticlesList";
 
 /**
  * @param { string } templateString 
@@ -6,9 +7,11 @@ import { asyncReplace } from "./asyncReplace";
  * @returns 
  */
 export const translateTemplate = async (templateString, currentSession) => {
+  const articlesList = new ArticlesList();
+
   return await asyncReplace(templateString, /\[#(.+?)#\]/g, 
       async (...args) => {
-        const { articlesList, host: { data: { firstLangId, secondLangId, defaultLangId } } } = currentSession;
+        const { host: { data: { firstLangId, secondLangId, defaultLangId } } } = currentSession;
 
         const alias = args[1].split('.');
 

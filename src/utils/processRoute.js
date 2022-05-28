@@ -1,4 +1,5 @@
-import { CurrentSession, GlobalVariables, HostsList } from '../classes';
+import { HostsList } from '../classes/lists/HostsList.js';
+import { CurrentSession } from '../classes/CurrentSession';
 import { runRouteHandlerFromUrl } from './runRouteHandlerFromUrl.js';
 import { translateTemplate } from './translateTemplate.js';
 
@@ -13,7 +14,6 @@ export const processRoute = async (req, res) => {
 
   if (requestHost.split(':')[0] === 'localhost') {
     requestHost = 'www.gigabyte.ru';
-    console.log('Recreate on host:', requestHost);
   }
 
   const host = await new HostsList().getByName(requestHost);
@@ -23,8 +23,6 @@ export const processRoute = async (req, res) => {
     res.end("Can't find hostname");
     return;
   }
-
-  console.log('Host name:', host.data.name);
 
   const currentSession = new CurrentSession(req, host);
 

@@ -1,4 +1,4 @@
-import { GlobalVariables } from './classes';
+import { GlobalVariables } from './classes/GlobalVariables';
 
 new GlobalVariables().runUpdate();
 

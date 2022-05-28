@@ -1,6 +1,7 @@
 import { List } from './List';
 import { Product } from '../entities/Product';
 import { FieldTypes } from '../../constants';
+import prepareForRedisStringSearch from '../../utils/prepareForRedisStringSearch';
 
 export class ProductsList extends List {
   static dbName = 'u15821_products';
@@ -31,8 +32,10 @@ export class ProductsList extends List {
    * @return {Promise<Product[]>}
    */
   async getEntityByAlias(alias) {
+    const redisAlias = prepareForRedisStringSearch(alias);
+
     return (
-      await this.lib.search(`@originalAlias:${alias} | @alias:${alias}`)
+      await this.lib.search(`(@originalAlias:${redisAlias}) | (@alias:${redisAlias})`)
     ).map((e) => new Product().setDataFromMemory(e));
   }
 
@@ -41,7 +44,9 @@ export class ProductsList extends List {
    * @return {Promise<Product[]>}
    */
   async getEntityByName(name) {
-    return (await this.lib.search(`@fullName:${name}`)).map((e) =>
+    const redisAlias = prepareForRedisStringSearch(name);
+
+    return (await this.lib.search(`@fullName:${redisAlias}`)).map((e) =>
       new Product().setDataFromMemory(e)
     );
   }
