@@ -16,14 +16,6 @@
     "site:server": "npm run node src/server.js",
     "site:init": "npm run node src/init.js",
     "site:updater": "npm run node src/update.js",
-    "pm2:server:watch": "pm2 start npm -- run site:server --watch",
-    "pm2:server": "pm2 start npm --name server -- run site:server --name",
-    "pm2:updater": "pm2 start npm --name updater -- run site:updater",
-    "pm2:server:stop": "pm2 stop server",
-    "pm2:updater:stop": "pm2 stop updater",
-    "pm2:server:delete": "pm2 delete server",
-    "pm2:updater:delete": "pm2 delete updater",
-    "pm2:cluster": "pm2 -i 4 start npm --name server_cluster -- run site:server",
     "test": "npm run node src/test.js"
   },
   "author": "Yury Nesterenko",
@@ -32,7 +24,6 @@
     "axios": "^1.6.0",
     "dotenv": "^10.0.0",
     "mysql2": "^2.3.3",
-    "pm2": "^5.1.2",
     "redis": "^4.0.3",
     "uuid": "^8.3.2"
   },
