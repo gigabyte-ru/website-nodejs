@@ -29,7 +29,7 @@
   "author": "Yury Nesterenko",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.24.0",
+    "axios": "^1.6.0",
     "dotenv": "^10.0.0",
     "mysql2": "^2.3.3",
     "pm2": "^5.1.2",
